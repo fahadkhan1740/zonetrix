@@ -1,0 +1,23 @@
+{
+  "name": "zonetrix-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Zonetrix monorepo - flexible venue layout library",
+  "workspaces": ["packages/*", "examples/*"],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspace=examples/basic",
+    "test": "npm run test --workspaces",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

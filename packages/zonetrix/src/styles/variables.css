@@ -1,0 +1,30 @@
+/**
+ * CSS Custom Properties for Zonetrix theming
+ */
+
+:root {
+  /* Colors - Soft, modern Tailwind-inspired palette */
+  --ztx-seat-color: #f3f4f6;
+  --ztx-seat-color-hover: #e0e7ff;
+  --ztx-seat-color-selected: #818cf8;
+  --ztx-seat-color-unavailable: #d1d5db;
+  --ztx-seat-border: #cbd5e1;
+  --ztx-seat-border-focus: #818cf8;
+  --ztx-seat-text: #475569;
+  --ztx-seat-text-selected: #ffffff;
+
+  /* Sizes */
+  --ztx-cell-radius: 6px;
+  --ztx-font-size: 10px;
+  --ztx-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+
+  /* Transitions */
+  --ztx-transition-duration: 150ms;
+  --ztx-transition-timing: ease-in-out;
+
+  /* Focus */
+  --ztx-focus-ring-width: 2px;
+  --ztx-focus-ring-offset: 2px;
+  --ztx-focus-ring-color: var(--ztx-seat-border-focus);
+}

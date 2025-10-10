@@ -1,0 +1,146 @@
+/**
+ * Base styles for Zonetrix components
+ */
+
+@import "./variables.css";
+
+.zonetrix {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--ztx-font-family);
+  font-size: var(--ztx-font-size);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.zonetrix-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.zonetrix-cell {
+  cursor: pointer;
+  transition: all var(--ztx-transition-duration) var(--ztx-transition-timing);
+  outline: none;
+}
+
+.zonetrix-cell-rect {
+  fill: var(--ztx-seat-color);
+  stroke: var(--ztx-seat-border);
+  stroke-width: 1.5;
+  transition: all var(--ztx-transition-duration) var(--ztx-transition-timing);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.zonetrix-cell:hover .zonetrix-cell-rect {
+  fill: var(--ztx-seat-color-hover);
+  stroke: var(--ztx-seat-border-focus);
+  stroke-width: 2;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  transform: scale(1.05);
+  transform-origin: center;
+}
+
+.zonetrix-cell:focus .zonetrix-cell-rect {
+  stroke: var(--ztx-focus-ring-color);
+  stroke-width: var(--ztx-focus-ring-width);
+}
+
+.zonetrix-cell.is-selected .zonetrix-cell-rect {
+  fill: var(--ztx-seat-color-selected);
+  stroke: var(--ztx-seat-color-selected);
+  stroke-width: 2;
+  filter: drop-shadow(0 2px 4px rgba(129, 140, 248, 0.3));
+}
+
+.zonetrix-cell.is-unavailable .zonetrix-cell-rect {
+  fill: var(--ztx-seat-color-unavailable);
+  stroke: var(--ztx-seat-color-unavailable);
+  cursor: not-allowed;
+}
+
+.zonetrix-cell.is-unavailable {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.zonetrix-cell-label {
+  fill: var(--ztx-seat-text);
+  font-size: var(--ztx-font-size);
+  font-family: var(--ztx-font-family);
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all var(--ztx-transition-duration) var(--ztx-transition-timing);
+}
+
+.zonetrix-cell.is-selected .zonetrix-cell-label {
+  fill: var(--ztx-seat-text-selected);
+  opacity: 1;
+  font-weight: 600;
+}
+
+.zonetrix-cell:hover .zonetrix-cell-label,
+.zonetrix-cell:focus .zonetrix-cell-label {
+  opacity: 1;
+  font-weight: 600;
+  font-size: calc(var(--ztx-font-size) * 1.1);
+}
+
+/* Tooltip */
+.zonetrix-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  transform: translate(-50%, -100%);
+  margin-top: -8px;
+}
+
+/* Legend */
+.zonetrix-legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 12px;
+  font-size: 12px;
+}
+
+.zonetrix-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zonetrix-legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--ztx-cell-radius);
+  border: 1px solid var(--ztx-seat-border);
+}
+
+.zonetrix-legend-color.available {
+  background-color: var(--ztx-seat-color);
+}
+
+.zonetrix-legend-color.selected {
+  background-color: var(--ztx-seat-color-selected);
+}
+
+.zonetrix-legend-color.unavailable {
+  background-color: var(--ztx-seat-color-unavailable);
+}
+
+/* RTL Support */
+.zonetrix[dir="rtl"] {
+  direction: rtl;
+}
