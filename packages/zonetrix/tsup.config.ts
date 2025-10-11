@@ -14,8 +14,11 @@ export default defineConfig({
     options.banner = {
       js: '"use client";',
     };
+    options.conditions = options.conditions
+      ? Array.from(new Set([...options.conditions, 'style']))
+      : ['style'];
   },
-  // Inject CSS into JS bundle
-  injectStyle: true,
+  // Output CSS alongside JS bundles (no runtime injection)
+  injectStyle: false,
   onSuccess: 'echo "Build completed successfully!"',
 });
