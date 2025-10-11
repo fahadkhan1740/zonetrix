@@ -17,7 +17,6 @@ import type {
 } from '../core/models';
 import { ZonetrixCell } from './ZonetrixCell';
 import { ZonetrixLayer } from './ZonetrixLayer';
-import { ZonetrixTooltip } from './ZonetrixTooltip';
 
 export interface ZonetrixProps {
   /** Layout configuration */
@@ -50,8 +49,6 @@ export interface ZonetrixProps {
   style?: React.CSSProperties;
   /** Enable pan/zoom (future feature, placeholder) */
   enablePanZoom?: boolean;
-  /** Enable tooltips on hover */
-  showTooltips?: boolean;
 }
 
 type AxisSettings = {
@@ -87,7 +84,6 @@ export function ZonetrixCanvas({
   className = '',
   style,
   enablePanZoom: _enablePanZoom = false,
-  showTooltips = true,
 }: ZonetrixProps) {
   // Determine if controlled or uncontrolled
   const isControlled = value !== undefined;
@@ -95,10 +91,7 @@ export function ZonetrixCanvas({
   const selection = isControlled ? value : internalSelection;
 
   const [focusedCellLabel, setFocusedCellLabel] = useState<string | null>(null);
-  const [hoveredCell, setHoveredCell] = useState<Cell | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | undefined>(
-    undefined
-  );
+  const [_hoveredCell, setHoveredCell] = useState<Cell | null>(null);
 
   const containerRef = useRef<SVGSVGElement>(null);
 
@@ -306,18 +299,6 @@ export function ZonetrixCanvas({
     return map;
   }, [cells]);
 
-  // Get section name for a cell
-  const getSectionName = useCallback(
-    (cell: Cell): string | undefined => {
-      if (layout.type === 'sections' && cell.id.sectionId) {
-        const section = layout.blocks.find((b) => b.id === cell.id.sectionId);
-        return section?.name || section?.id;
-      }
-      return undefined;
-    },
-    [layout]
-  );
-
   // Handle cell click
   const handleCellClick = useCallback(
     (cell: Cell) => {
@@ -352,28 +333,17 @@ export function ZonetrixCanvas({
 
   // Handle cell hover
   const handleCellMouseEnter = useCallback(
-    (cell: Cell, event?: React.MouseEvent) => {
+    (cell: Cell) => {
       setHoveredCell(cell);
-      if (event && showTooltips) {
-        // Get mouse position relative to the container
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (rect) {
-          setTooltipPosition({
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
-          });
-        }
-      }
       if (onCellHover) {
         onCellHover(cell);
       }
     },
-    [onCellHover, showTooltips]
+    [onCellHover]
   );
 
   const handleCellMouseLeave = useCallback(() => {
     setHoveredCell(null);
-    setTooltipPosition(undefined);
     if (onCellHover) {
       onCellHover(null);
     }
@@ -626,16 +596,6 @@ export function ZonetrixCanvas({
           </ZonetrixLayer>
         )}
       </svg>
-
-      {showTooltips && hoveredCell && (
-        <ZonetrixTooltip
-          cell={hoveredCell}
-          isSelected={selection.includes(hoveredCell.meta?.label || '')}
-          sectionName={getSectionName(hoveredCell)}
-          position={tooltipPosition}
-          enabled={showTooltips}
-        />
-      )}
     </div>
   );
 }

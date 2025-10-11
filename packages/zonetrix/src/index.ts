@@ -15,8 +15,6 @@ export { ZonetrixLegend } from './components/ZonetrixLegend';
 export type { ZonetrixLegendProps } from './components/ZonetrixLegend';
 export { ZonetrixLayer } from './components/ZonetrixLayer';
 export type { ZonetrixLayerProps } from './components/ZonetrixLayer';
-export { ZonetrixTooltip } from './components/ZonetrixTooltip';
-export type { ZonetrixTooltipProps } from './components/ZonetrixTooltip';
 
 // Export types
 export type {

@@ -12,7 +12,7 @@ export interface ZonetrixCellProps {
   theme?: RenderTheme;
   showLabel?: boolean;
   onClick?: (cell: Cell) => void;
-  onMouseEnter?: (cell: Cell, event?: React.MouseEvent) => void;
+  onMouseEnter?: (cell: Cell) => void;
   onMouseLeave?: (cell: Cell) => void;
   onFocus?: (cell: Cell) => void;
   onBlur?: () => void;
@@ -58,9 +58,9 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
       }
     };
 
-    const handleMouseEnter = (e: React.MouseEvent) => {
+    const handleMouseEnter = () => {
       if (onMouseEnter) {
-        onMouseEnter(cell, e);
+        onMouseEnter(cell);
       }
     };
 
