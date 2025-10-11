@@ -5,29 +5,41 @@
 
 :root {
   /* Colors - Modern, realistic seat selection palette */
-  /* Available seats - Soft, inviting color */
-  --ztx-seat-color: #e0f2fe;
-  --ztx-seat-color-hover: #bae6fd;
-  --ztx-seat-border: #7dd3fc;
 
-  /* Selected seats - Vibrant, confident color */
+  /* Empty/Available seats - Soft, inviting color */
+  --ztx-seat-color-empty: #e0f2fe;
+  --ztx-seat-border-empty: #7dd3fc;
+  --ztx-seat-text-empty: #0c4a6e;
+
+  /* Hover state - Brighter, more inviting */
+  --ztx-seat-color-hover: #bae6fd;
+  --ztx-seat-border-hover: #0ea5e9;
+  --ztx-seat-text-hover: #075985;
+
+  /* Selected seats - Vibrant, confident green */
   --ztx-seat-color-selected: #22c55e;
   --ztx-seat-color-selected-hover: #16a34a;
   --ztx-seat-border-selected: #15803d;
+  --ztx-seat-text-selected: #ffffff;
 
   /* Unavailable seats - Subtle, muted */
   --ztx-seat-color-unavailable: #f1f5f9;
   --ztx-seat-border-unavailable: #cbd5e1;
+  --ztx-seat-text-unavailable: #94a3b8;
+
+  /* Booked seats - Red/orange tint */
+  --ztx-seat-color-booked: #fee2e2;
+  --ztx-seat-border-booked: #fca5a5;
+  --ztx-seat-text-booked: #991b1b;
+
+  /* Legacy support (for backward compatibility) */
+  --ztx-seat-color: var(--ztx-seat-color-empty);
+  --ztx-seat-border: var(--ztx-seat-border-empty);
+  --ztx-seat-text: var(--ztx-seat-text-empty);
 
   /* Focus states */
   --ztx-seat-border-focus: #818cf8;
   --ztx-focus-ring-color: #818cf8;
-
-  /* Text colors */
-  --ztx-seat-text: #0c4a6e;
-  --ztx-seat-text-hover: #075985;
-  --ztx-seat-text-selected: #ffffff;
-  --ztx-seat-text-unavailable: #94a3b8;
 
   /* Axis and objects */
   --ztx-axis-label-color: #334155;
@@ -46,6 +58,6 @@
   --ztx-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Focus */
-  --ztx-focus-ring-width: 3px;
+  --ztx-focus-ring-width: 2px;
   --ztx-focus-ring-offset: 2px;
 }

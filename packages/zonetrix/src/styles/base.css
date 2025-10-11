@@ -22,41 +22,29 @@
 }
 
 .zonetrix-cell-rect {
-  fill: var(--ztx-seat-color);
-  stroke: var(--ztx-seat-border);
+  fill: var(--ztx-seat-color-empty);
+  stroke: var(--ztx-seat-border-empty);
   stroke-width: 2;
-  filter: drop-shadow(0 2px 4px rgba(148, 163, 184, 0.15));
+  transition: all var(--ztx-transition-duration) var(--ztx-transition-timing);
 }
 
 /* Hover state - Brighter, more inviting */
 .zonetrix-cell:hover .zonetrix-cell-rect {
   fill: var(--ztx-seat-color-hover);
-  stroke: var(--ztx-seat-border);
+  stroke: var(--ztx-seat-border-hover);
   stroke-width: 2.5;
   filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.25));
-}
-
-/* Focus state - Clear focus ring */
-.zonetrix-cell:focus .zonetrix-cell-rect {
-  stroke: var(--ztx-focus-ring-color);
-  stroke-width: var(--ztx-focus-ring-width);
-  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
 }
 
 /* Selected state - Vibrant green with glow */
 .zonetrix-cell.is-selected .zonetrix-cell-rect {
   fill: var(--ztx-seat-color-selected);
-  stroke: var(--ztx-seat-border-selected);
-  stroke-width: 2.5;
   filter: drop-shadow(0 4px 12px rgba(34, 197, 94, 0.4));
 }
 
 /* Selected hover state - Darker green */
 .zonetrix-cell.is-selected:hover .zonetrix-cell-rect {
-  fill: var(--ztx-seat-color-selected-hover);
   stroke: var(--ztx-seat-border-selected);
-  stroke-width: 3;
-  filter: drop-shadow(0 6px 16px rgba(34, 197, 94, 0.5));
 }
 
 /* Unavailable state - Muted and disabled */
@@ -78,9 +66,58 @@
   filter: drop-shadow(0 1px 2px rgba(148, 163, 184, 0.1));
 }
 
+/* Booked state - Red/orange tint, disabled */
+.zonetrix-cell.is-booked .zonetrix-cell-rect {
+  fill: var(--ztx-seat-color-booked);
+  stroke: var(--ztx-seat-border-booked);
+  stroke-width: 2;
+  @apply cursor-not-allowed;
+  filter: drop-shadow(0 2px 4px rgba(248, 113, 113, 0.2));
+  opacity: 0.7;
+}
+
+.zonetrix-cell.is-booked {
+  @apply cursor-not-allowed;
+}
+
+/* Booked no hover effect */
+.zonetrix-cell.is-booked:hover .zonetrix-cell-rect {
+  fill: var(--ztx-seat-color-booked);
+  stroke: var(--ztx-seat-border-booked);
+  filter: drop-shadow(0 2px 4px rgba(248, 113, 113, 0.2));
+}
+
+/* Held state (similar to unavailable but slightly different) */
+.zonetrix-cell.is-held .zonetrix-cell-rect {
+  fill: #fef3c7;
+  stroke: #fbbf24;
+  stroke-width: 2;
+  @apply cursor-not-allowed;
+  filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.2));
+  opacity: 0.7;
+}
+
+.zonetrix-cell.is-held {
+  @apply cursor-not-allowed;
+}
+
+/* Sold state (similar to booked) */
+.zonetrix-cell.is-sold .zonetrix-cell-rect {
+  fill: #ffe4e6;
+  stroke: #f43f5e;
+  stroke-width: 2;
+  @apply cursor-not-allowed;
+  filter: drop-shadow(0 2px 4px rgba(244, 63, 94, 0.2));
+  opacity: 0.7;
+}
+
+.zonetrix-cell.is-sold {
+  @apply cursor-not-allowed;
+}
+
 /* Labels */
 .zonetrix-cell-label {
-  fill: var(--ztx-seat-text);
+  fill: var(--ztx-seat-text-empty);
   font-size: var(--ztx-font-size);
   font-family: var(--ztx-font-family);
   @apply font-semibold;
@@ -98,18 +135,33 @@
 
 .zonetrix-cell.is-selected .zonetrix-cell-label {
   fill: var(--ztx-seat-text-selected);
-  @apply opacity-100 font-bold;
+  /* @apply opacity-100 font-bold; */
   text-shadow: 0 1px 2px rgba(21, 128, 61, 0.3);
 }
 
 .zonetrix-cell.is-selected:hover .zonetrix-cell-label {
   fill: var(--ztx-seat-text-selected);
-  @apply opacity-100 font-bold;
+  /* @apply opacity-100 font-bold; */
 }
 
 .zonetrix-cell.is-unavailable .zonetrix-cell-label {
   fill: var(--ztx-seat-text-unavailable);
   @apply opacity-50;
+}
+
+.zonetrix-cell.is-booked .zonetrix-cell-label {
+  fill: var(--ztx-seat-text-booked);
+  @apply opacity-70 font-semibold;
+}
+
+.zonetrix-cell.is-held .zonetrix-cell-label {
+  fill: #92400e;
+  @apply opacity-70;
+}
+
+.zonetrix-cell.is-sold .zonetrix-cell-label {
+  fill: #881337;
+  @apply opacity-70;
 }
 
 .zonetrix-layer-axis,
@@ -146,27 +198,70 @@
   text-shadow: 0 2px 4px rgba(148, 163, 184, 0.4);
 }
 
-/* Tooltip - Modern design */
+/* Tooltip - Modern design with smooth animations */
 .zonetrix-tooltip {
-  @apply absolute text-white px-3 py-2 rounded-lg text-xs font-medium pointer-events-none whitespace-nowrap;
+  @apply absolute text-white px-4 py-3 rounded-lg text-sm font-medium pointer-events-none;
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  transform: translate(-50%, -100%);
-  margin-top: -12px;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translate(-50%, calc(-100% - 12px));
   z-index: 1000;
+  min-width: 160px;
+  max-width: 280px;
+  animation: tooltipFadeIn 200ms ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 8px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, calc(-100% - 12px));
+  }
 }
 
 .zonetrix-tooltip::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid #2563eb;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #2563eb;
+}
+
+.zonetrix-tooltip-content {
+  @apply flex flex-col gap-1;
+}
+
+.zonetrix-tooltip-section {
+  @apply text-xs uppercase tracking-wide opacity-90 font-bold;
+  color: #dbeafe;
+}
+
+.zonetrix-tooltip-seat {
+  @apply text-base font-bold;
+}
+
+.zonetrix-tooltip-price {
+  @apply text-sm font-semibold;
+  color: #bfdbfe;
+}
+
+.zonetrix-tooltip-selected {
+  @apply text-xs mt-1 pt-1 border-t border-white/20;
+  color: #bfdbfe;
+  font-weight: 600;
+}
+
+.zonetrix-tooltip-status {
+  @apply text-xs mt-1 pt-1 border-t border-white/20;
+  color: #fca5a5;
+  font-weight: 600;
 }
 
 /* Legend - Enhanced styling */
@@ -194,8 +289,8 @@
 }
 
 .zonetrix-legend-color.available {
-  background-color: var(--ztx-seat-color);
-  border-color: var(--ztx-seat-border);
+  background-color: var(--ztx-seat-color-empty);
+  border-color: var(--ztx-seat-border-empty);
 }
 
 .zonetrix-legend-color.selected {
@@ -207,6 +302,24 @@
   background-color: var(--ztx-seat-color-unavailable);
   border-color: var(--ztx-seat-border-unavailable);
   opacity: 0.6;
+}
+
+.zonetrix-legend-color.booked {
+  background-color: var(--ztx-seat-color-booked);
+  border-color: var(--ztx-seat-border-booked);
+  opacity: 0.7;
+}
+
+.zonetrix-legend-color.held {
+  background-color: #fef3c7;
+  border-color: #fbbf24;
+  opacity: 0.7;
+}
+
+.zonetrix-legend-color.sold {
+  background-color: #ffe4e6;
+  border-color: #f43f5e;
+  opacity: 0.7;
 }
 
 /* RTL Support */

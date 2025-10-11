@@ -583,6 +583,16 @@ function App() {
               <div key={block.id} className="section-block">
                 <h4>Section {index + 1}</h4>
 
+                <div className="form-group">
+                  <label>Section Name</label>
+                  <input
+                    type="text"
+                    value={block.name || ''}
+                    onChange={(e) => handleUpdateSection(index, { name: e.target.value })}
+                    placeholder="e.g., VIP, Balcony"
+                  />
+                </div>
+
                 <div className="form-row">
                   <div className="form-group">
                     <label>Origin X</label>
@@ -773,7 +783,7 @@ function App() {
             RTL Mode
           </label>
 
-          <ZonetrixLegend />
+          <ZonetrixLegend showBooked={true} showHeld={true} />
         </div>
 
         <div className="canvas-container">
@@ -787,10 +797,22 @@ function App() {
               showSeatLabels={showSeatLabels}
               axisLabels={axisConfig}
               theme={{
-                seatColorSelected: '#818cf8',
-                seatColor: '#f3f4f6',
-                seatColorUnavailable: '#d1d5db',
-                seatBorder: '#cbd5e1',
+                // New state-based colors
+                seatColorEmpty: '#e0f2fe',
+                seatColorHover: '#bae6fd',
+                seatColorSelected: '#22c55e',
+                seatColorUnavailable: '#f1f5f9',
+                seatColorBooked: '#fee2e2',
+                seatBorderEmpty: '#7dd3fc',
+                seatBorderHover: '#0ea5e9',
+                seatBorderSelected: '#15803d',
+                seatBorderUnavailable: '#cbd5e1',
+                seatBorderBooked: '#fca5a5',
+                seatTextEmpty: '#0c4a6e',
+                seatTextHover: '#075985',
+                seatTextSelected: '#ffffff',
+                seatTextUnavailable: '#94a3b8',
+                seatTextBooked: '#991b1b',
                 axisLabelColor: axisColor,
                 objectFillColor,
                 objectBorderColor,

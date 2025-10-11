@@ -17,6 +17,7 @@ import type {
 } from '../core/models';
 import { ZonetrixCell } from './ZonetrixCell';
 import { ZonetrixLayer } from './ZonetrixLayer';
+import { ZonetrixTooltip } from './ZonetrixTooltip';
 
 export interface ZonetrixProps {
   /** Layout configuration */
@@ -49,6 +50,8 @@ export interface ZonetrixProps {
   style?: React.CSSProperties;
   /** Enable pan/zoom (future feature, placeholder) */
   enablePanZoom?: boolean;
+  /** Enable tooltips on hover */
+  showTooltips?: boolean;
 }
 
 type AxisSettings = {
@@ -84,6 +87,7 @@ export function ZonetrixCanvas({
   className = '',
   style,
   enablePanZoom: _enablePanZoom = false,
+  showTooltips = true,
 }: ZonetrixProps) {
   // Determine if controlled or uncontrolled
   const isControlled = value !== undefined;
@@ -91,7 +95,10 @@ export function ZonetrixCanvas({
   const selection = isControlled ? value : internalSelection;
 
   const [focusedCellLabel, setFocusedCellLabel] = useState<string | null>(null);
-  const [_hoveredCell, setHoveredCell] = useState<Cell | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<Cell | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | undefined>(
+    undefined
+  );
 
   const containerRef = useRef<SVGSVGElement>(null);
 
@@ -299,6 +306,18 @@ export function ZonetrixCanvas({
     return map;
   }, [cells]);
 
+  // Get section name for a cell
+  const getSectionName = useCallback(
+    (cell: Cell): string | undefined => {
+      if (layout.type === 'sections' && cell.id.sectionId) {
+        const section = layout.blocks.find((b) => b.id === cell.id.sectionId);
+        return section?.name || section?.id;
+      }
+      return undefined;
+    },
+    [layout]
+  );
+
   // Handle cell click
   const handleCellClick = useCallback(
     (cell: Cell) => {
@@ -333,17 +352,28 @@ export function ZonetrixCanvas({
 
   // Handle cell hover
   const handleCellMouseEnter = useCallback(
-    (cell: Cell) => {
+    (cell: Cell, event?: React.MouseEvent) => {
       setHoveredCell(cell);
+      if (event && showTooltips) {
+        // Get mouse position relative to the container
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) {
+          setTooltipPosition({
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
+          });
+        }
+      }
       if (onCellHover) {
         onCellHover(cell);
       }
     },
-    [onCellHover]
+    [onCellHover, showTooltips]
   );
 
   const handleCellMouseLeave = useCallback(() => {
     setHoveredCell(null);
+    setTooltipPosition(undefined);
     if (onCellHover) {
       onCellHover(null);
     }
@@ -437,12 +467,44 @@ export function ZonetrixCanvas({
     const root = containerRef.current;
     if (theme.cellRadius !== undefined)
       root.style.setProperty('--ztx-cell-radius', `${theme.cellRadius}px`);
-    if (theme.seatColor) root.style.setProperty('--ztx-seat-color', theme.seatColor);
+
+    // New state-based colors
+    if (theme.seatColorEmpty) root.style.setProperty('--ztx-seat-color-empty', theme.seatColorEmpty);
+    if (theme.seatColorHover) root.style.setProperty('--ztx-seat-color-hover', theme.seatColorHover);
     if (theme.seatColorSelected)
       root.style.setProperty('--ztx-seat-color-selected', theme.seatColorSelected);
     if (theme.seatColorUnavailable)
       root.style.setProperty('--ztx-seat-color-unavailable', theme.seatColorUnavailable);
+    if (theme.seatColorBooked)
+      root.style.setProperty('--ztx-seat-color-booked', theme.seatColorBooked);
+
+    // New border colors
+    if (theme.seatBorderEmpty)
+      root.style.setProperty('--ztx-seat-border-empty', theme.seatBorderEmpty);
+    if (theme.seatBorderHover)
+      root.style.setProperty('--ztx-seat-border-hover', theme.seatBorderHover);
+    if (theme.seatBorderSelected)
+      root.style.setProperty('--ztx-seat-border-selected', theme.seatBorderSelected);
+    if (theme.seatBorderUnavailable)
+      root.style.setProperty('--ztx-seat-border-unavailable', theme.seatBorderUnavailable);
+    if (theme.seatBorderBooked)
+      root.style.setProperty('--ztx-seat-border-booked', theme.seatBorderBooked);
+
+    // New text colors
+    if (theme.seatTextEmpty) root.style.setProperty('--ztx-seat-text-empty', theme.seatTextEmpty);
+    if (theme.seatTextHover) root.style.setProperty('--ztx-seat-text-hover', theme.seatTextHover);
+    if (theme.seatTextSelected)
+      root.style.setProperty('--ztx-seat-text-selected', theme.seatTextSelected);
+    if (theme.seatTextUnavailable)
+      root.style.setProperty('--ztx-seat-text-unavailable', theme.seatTextUnavailable);
+    if (theme.seatTextBooked)
+      root.style.setProperty('--ztx-seat-text-booked', theme.seatTextBooked);
+
+    // Legacy support
+    if (theme.seatColor) root.style.setProperty('--ztx-seat-color', theme.seatColor);
     if (theme.seatBorder) root.style.setProperty('--ztx-seat-border', theme.seatBorder);
+
+    // Other properties
     if (theme.axisLabelColor)
       root.style.setProperty('--ztx-axis-label-color', theme.axisLabelColor);
     if (theme.objectFillColor) root.style.setProperty('--ztx-object-fill', theme.objectFillColor);
@@ -564,6 +626,16 @@ export function ZonetrixCanvas({
           </ZonetrixLayer>
         )}
       </svg>
+
+      {showTooltips && hoveredCell && (
+        <ZonetrixTooltip
+          cell={hoveredCell}
+          isSelected={selection.includes(hoveredCell.meta?.label || '')}
+          sectionName={getSectionName(hoveredCell)}
+          position={tooltipPosition}
+          enabled={showTooltips}
+        />
+      )}
     </div>
   );
 }

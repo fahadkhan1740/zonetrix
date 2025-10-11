@@ -63,6 +63,7 @@ export const presets: Preset[] = [
       blocks: [
         {
           id: 'left',
+          name: 'VIP Section',
           origin: { x: 50, y: 50 },
           rows: 8,
           cols: 6,
@@ -76,6 +77,7 @@ export const presets: Preset[] = [
         },
         {
           id: 'center',
+          name: 'Main Floor',
           origin: { x: 200, y: 50 },
           rows: 8,
           cols: 10,
@@ -89,6 +91,7 @@ export const presets: Preset[] = [
         },
         {
           id: 'right',
+          name: 'Balcony',
           origin: { x: 420, y: 50 },
           rows: 8,
           cols: 6,

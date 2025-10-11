@@ -34,7 +34,7 @@ export interface CellMeta {
   /** Price for this cell */
   price?: number;
   /** Availability status */
-  status?: 'available' | 'unavailable' | 'held' | 'sold';
+  status?: 'available' | 'unavailable' | 'held' | 'sold' | 'booked';
   /** Arbitrary custom metadata */
   data?: Record<string, unknown>;
 }
@@ -180,6 +180,8 @@ export interface CircleLayoutConfig extends LayoutObjectsConfig {
 export interface SectionBlock {
   /** Section identifier */
   id: string;
+  /** Section display name (e.g., "VIP Section", "Balcony") */
+  name?: string;
   /** Origin point for this section */
   origin: { x: number; y: number };
   /** Number of rows in this section */
@@ -241,14 +243,49 @@ export interface AxisLabelsConfig {
 export interface RenderTheme {
   /** Border radius for cells (px, default: 4) */
   cellRadius?: number;
-  /** Default seat color */
-  seatColor?: string;
+
+  /* Seat colors for different states */
+  /** Empty/available seat color */
+  seatColorEmpty?: string;
+  /** Seat color on hover */
+  seatColorHover?: string;
   /** Selected seat color */
   seatColorSelected?: string;
   /** Unavailable seat color */
   seatColorUnavailable?: string;
-  /** Seat border color */
+  /** Booked seat color */
+  seatColorBooked?: string;
+
+  /* Seat border colors for different states */
+  /** Empty/available seat border */
+  seatBorderEmpty?: string;
+  /** Seat border on hover */
+  seatBorderHover?: string;
+  /** Selected seat border */
+  seatBorderSelected?: string;
+  /** Unavailable seat border */
+  seatBorderUnavailable?: string;
+  /** Booked seat border */
+  seatBorderBooked?: string;
+
+  /* Seat text colors for different states */
+  /** Empty/available seat text */
+  seatTextEmpty?: string;
+  /** Seat text on hover */
+  seatTextHover?: string;
+  /** Selected seat text */
+  seatTextSelected?: string;
+  /** Unavailable seat text */
+  seatTextUnavailable?: string;
+  /** Booked seat text */
+  seatTextBooked?: string;
+
+  /* Legacy color support (deprecated, use specific state colors instead) */
+  /** @deprecated Use seatColorEmpty instead */
+  seatColor?: string;
+  /** @deprecated Use seatBorderEmpty instead */
   seatBorder?: string;
+
   /** Font family */
   fontFamily?: string;
   /** Font size (px) */

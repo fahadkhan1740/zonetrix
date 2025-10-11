@@ -12,7 +12,7 @@ export interface ZonetrixCellProps {
   theme?: RenderTheme;
   showLabel?: boolean;
   onClick?: (cell: Cell) => void;
-  onMouseEnter?: (cell: Cell) => void;
+  onMouseEnter?: (cell: Cell, event?: React.MouseEvent) => void;
   onMouseLeave?: (cell: Cell) => void;
   onFocus?: (cell: Cell) => void;
   onBlur?: () => void;
@@ -39,6 +39,9 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
 
     const cellRadius = theme?.cellRadius ?? 4;
     const isUnavailable = status !== 'available' || disabled;
+    const isBooked = status === 'booked';
+    const isSold = status === 'sold';
+    const isHeld = status === 'held';
 
     const handleClick = () => {
       if (!isUnavailable && onClick) {
@@ -55,9 +58,9 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
       }
     };
 
-    const handleMouseEnter = () => {
+    const handleMouseEnter = (e: React.MouseEvent) => {
       if (onMouseEnter) {
-        onMouseEnter(cell);
+        onMouseEnter(cell, e);
       }
     };
 
@@ -77,6 +80,9 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
       'zonetrix-cell',
       selected && 'is-selected',
       isUnavailable && 'is-unavailable',
+      isBooked && 'is-booked',
+      isSold && 'is-sold',
+      isHeld && 'is-held',
     ]
       .filter(Boolean)
       .join(' ');
