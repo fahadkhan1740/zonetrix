@@ -8,7 +8,13 @@ import { createCircleLayout } from '../core/layout-circle';
 import { createGridLayout } from '../core/layout-grid';
 import { createSectionsLayout } from '../core/layout-sections';
 import { calculateBoundingBox, findAngularNeighbor, findGridNeighbor } from '../core/math';
-import type { Cell, LayoutConfig, RenderTheme } from '../core/models';
+import type {
+  AxisLabelsConfig,
+  Cell,
+  LayoutConfig,
+  LayoutObject,
+  RenderTheme,
+} from '../core/models';
 import { ZonetrixCell } from './ZonetrixCell';
 import { ZonetrixLayer } from './ZonetrixLayer';
 
@@ -29,6 +35,10 @@ export interface ZonetrixProps {
   getCellLabel?: (cell: Cell) => string;
   /** Predicate to determine if a cell is selectable */
   selectablePredicate?: (cell: Cell) => boolean;
+  /** Control whether seat labels are shown inside each cell */
+  showSeatLabels?: boolean;
+  /** Axis label configuration */
+  axisLabels?: AxisLabelsConfig;
   /** Render theme */
   theme?: RenderTheme;
   /** Text direction */
@@ -41,6 +51,23 @@ export interface ZonetrixProps {
   enablePanZoom?: boolean;
 }
 
+type AxisSettings = {
+  enabled: boolean;
+  showX: boolean;
+  showY: boolean;
+  position: { x: 'top' | 'bottom'; y: 'left' | 'right' };
+  offset: number;
+};
+
+const EMPTY_BOUNDS = {
+  minX: -50,
+  maxX: 50,
+  minY: -50,
+  maxY: 50,
+  width: 100,
+  height: 100,
+} as const;
+
 export function ZonetrixCanvas({
   layout,
   value,
@@ -50,6 +77,8 @@ export function ZonetrixCanvas({
   onCellHover,
   getCellLabel,
   selectablePredicate,
+  showSeatLabels = true,
+  axisLabels,
   theme,
   dir = 'ltr',
   className = '',
@@ -101,6 +130,163 @@ export function ZonetrixCanvas({
     return generatedCells;
   }, [layout, getCellLabel]);
 
+  const layoutObjects = layout.objects ?? [];
+
+  const axisSettings = useMemo<AxisSettings>(() => {
+    const enabled = axisLabels?.enabled ?? false;
+    return {
+      enabled,
+      showX: enabled ? axisLabels?.showX ?? true : false,
+      showY: enabled ? axisLabels?.showY ?? true : false,
+      position: {
+        x: axisLabels?.position?.x ?? 'top',
+        y: axisLabels?.position?.y ?? 'left',
+      },
+      offset: axisLabels?.offset ?? 36,
+    };
+  }, [axisLabels]);
+
+  const cellsBounds = useMemo(() => calculateBoundingBox(cells), [cells]);
+
+  const contentBounds = useMemo(() => {
+    const hasCells = cells.length > 0;
+
+    if (!hasCells && layoutObjects.length === 0) {
+      return { ...EMPTY_BOUNDS };
+    }
+
+    let minX = hasCells ? cellsBounds.minX : Number.POSITIVE_INFINITY;
+    let minY = hasCells ? cellsBounds.minY : Number.POSITIVE_INFINITY;
+    let maxX = hasCells ? cellsBounds.maxX : Number.NEGATIVE_INFINITY;
+    let maxY = hasCells ? cellsBounds.maxY : Number.NEGATIVE_INFINITY;
+
+    if (hasCells) {
+      minX = Math.min(minX, cellsBounds.minX);
+      minY = Math.min(minY, cellsBounds.minY);
+      maxX = Math.max(maxX, cellsBounds.maxX);
+      maxY = Math.max(maxY, cellsBounds.maxY);
+    }
+
+    for (const object of layoutObjects) {
+      const objMinX = object.x - object.width / 2;
+      const objMaxX = object.x + object.width / 2;
+      const objMinY = object.y - object.height / 2;
+      const objMaxY = object.y + object.height / 2;
+
+      minX = Math.min(minX, objMinX);
+      minY = Math.min(minY, objMinY);
+      maxX = Math.max(maxX, objMaxX);
+      maxY = Math.max(maxY, objMaxY);
+    }
+
+    if (minX === Number.POSITIVE_INFINITY || minY === Number.POSITIVE_INFINITY) {
+      return { ...EMPTY_BOUNDS };
+    }
+
+    const width = Math.max(1, maxX - minX);
+    const height = Math.max(1, maxY - minY);
+
+    return { minX, minY, maxX, maxY, width, height };
+  }, [cells.length, cellsBounds, layoutObjects]);
+
+  const viewBox = useMemo(() => {
+    const padding = 20;
+    const axisExtraX = axisSettings.offset + 30;
+    const axisExtraY = axisSettings.offset + 30;
+
+    let extraLeft = 0;
+    let extraRight = 0;
+    let extraTop = 0;
+    let extraBottom = 0;
+
+    if (axisSettings.showY) {
+      if (axisSettings.position.y === 'left') {
+        extraLeft = Math.max(extraLeft, axisExtraX);
+      } else {
+        extraRight = Math.max(extraRight, axisExtraX);
+      }
+    }
+
+    if (axisSettings.showX) {
+      if (axisSettings.position.x === 'top') {
+        extraTop = Math.max(extraTop, axisExtraY);
+      } else {
+        extraBottom = Math.max(extraBottom, axisExtraY);
+      }
+    }
+
+    return {
+      x: contentBounds.minX - padding - extraLeft,
+      y: contentBounds.minY - padding - extraTop,
+      width: contentBounds.width + padding * 2 + extraLeft + extraRight,
+      height: contentBounds.height + padding * 2 + extraTop + extraBottom,
+    };
+  }, [contentBounds, axisSettings]);
+
+  const rowAxisData = useMemo(() => {
+    if (!axisSettings.showY) return [];
+    if (layout.type !== 'grid' && layout.type !== 'sections') return [];
+
+    const rows = new Map<string, { key: string; label: string; y: number }>();
+
+    for (const cell of cells) {
+      if (cell.id.row === undefined) continue;
+      const label = cell.meta?.rowLabel;
+      if (!label) continue;
+      const section = cell.id.sectionId ?? 'default';
+      const key = `${section}:${cell.id.row}`;
+
+      if (!rows.has(key)) {
+        rows.set(key, { key, label, y: cell.y });
+      } else {
+        const entry = rows.get(key)!;
+        entry.y = (entry.y + cell.y) / 2;
+      }
+    }
+
+    return Array.from(rows.values()).sort((a, b) => a.y - b.y);
+  }, [axisSettings.showY, cells, layout.type]);
+
+  const colAxisData = useMemo(() => {
+    if (!axisSettings.showX) return [];
+    if (layout.type !== 'grid' && layout.type !== 'sections') return [];
+
+    const cols = new Map<string, { key: string; label: string; x: number }>();
+
+    for (const cell of cells) {
+      if (cell.id.col === undefined) continue;
+      const label = cell.meta?.colLabel;
+      if (!label) continue;
+      const section = cell.id.sectionId ?? 'default';
+      const key = `${section}:${cell.id.col}`;
+
+      if (!cols.has(key)) {
+        cols.set(key, { key, label, x: cell.x });
+      } else {
+        const entry = cols.get(key)!;
+        entry.x = (entry.x + cell.x) / 2;
+      }
+    }
+
+    return Array.from(cols.values()).sort((a, b) => a.x - b.x);
+  }, [axisSettings.showX, cells, layout.type]);
+
+  const rowAxisX =
+    axisSettings.position.y === 'left'
+      ? contentBounds.minX - axisSettings.offset
+      : contentBounds.maxX + axisSettings.offset;
+
+  const colAxisY =
+    axisSettings.position.x === 'top'
+      ? contentBounds.minY - axisSettings.offset
+      : contentBounds.maxY + axisSettings.offset;
+
+  const showAxisLabels = axisSettings.showX || axisSettings.showY;
+  const rowAxisTextAnchor = axisSettings.position.y === 'left' ? 'end' : 'start';
+  const columnDominantBaseline = 'middle';
+  const rowDominantBaseline = 'middle';
+  const objectCornerRadius = Math.max(6, (theme?.cellRadius ?? 4) * 1.5);
+
   // Create label -> cell map
   const cellsByLabel = useMemo(() => {
     const map = new Map<string, Cell>();
@@ -111,18 +297,6 @@ export function ZonetrixCanvas({
       }
     }
     return map;
-  }, [cells]);
-
-  // Calculate viewBox
-  const viewBox = useMemo(() => {
-    const bbox = calculateBoundingBox(cells);
-    const padding = 20;
-    return {
-      x: bbox.minX - padding,
-      y: bbox.minY - padding,
-      width: bbox.width + padding * 2,
-      height: bbox.height + padding * 2,
-    };
   }, [cells]);
 
   // Handle cell click
@@ -269,6 +443,13 @@ export function ZonetrixCanvas({
     if (theme.seatColorUnavailable)
       root.style.setProperty('--ztx-seat-color-unavailable', theme.seatColorUnavailable);
     if (theme.seatBorder) root.style.setProperty('--ztx-seat-border', theme.seatBorder);
+    if (theme.axisLabelColor)
+      root.style.setProperty('--ztx-axis-label-color', theme.axisLabelColor);
+    if (theme.objectFillColor) root.style.setProperty('--ztx-object-fill', theme.objectFillColor);
+    if (theme.objectBorderColor)
+      root.style.setProperty('--ztx-object-border', theme.objectBorderColor);
+    if (theme.objectTextColor)
+      root.style.setProperty('--ztx-object-text', theme.objectTextColor);
     if (theme.fontFamily) root.style.setProperty('--ztx-font-family', theme.fontFamily);
     if (theme.fontSize !== undefined)
       root.style.setProperty('--ztx-font-size', `${theme.fontSize}px`);
@@ -288,7 +469,38 @@ export function ZonetrixCanvas({
         role="grid"
         aria-label="Venue seating layout"
       >
-        <ZonetrixLayer>
+        {layoutObjects.length > 0 && (
+          <ZonetrixLayer className="zonetrix-layer-objects">
+            {layoutObjects.map((object: LayoutObject) => {
+              const rotation = object.rotation ?? 0;
+              const label = object.label ?? object.type.toUpperCase();
+
+              return (
+                <g
+                  key={object.id}
+                  className={`zonetrix-object zonetrix-object-${object.type}`}
+                  transform={`translate(${object.x}, ${object.y}) rotate(${rotation})`}
+                  role="presentation"
+                >
+                  <rect
+                    className="zonetrix-object-rect"
+                    x={-object.width / 2}
+                    y={-object.height / 2}
+                    width={object.width}
+                    height={object.height}
+                    rx={objectCornerRadius}
+                    ry={objectCornerRadius}
+                  />
+                  <text className="zonetrix-object-label" x={0} y={0}>
+                    {label}
+                  </text>
+                </g>
+              );
+            })}
+          </ZonetrixLayer>
+        )}
+
+        <ZonetrixLayer className="zonetrix-layer-cells">
           {cells.map((cell) => {
             const label = cell.meta?.label || '';
             const isSelected = selection.includes(label);
@@ -308,6 +520,7 @@ export function ZonetrixCanvas({
                 selected={isSelected}
                 disabled={isDisabled}
                 theme={theme}
+                showLabel={showSeatLabels}
                 onClick={handleCellClick}
                 onMouseEnter={handleCellMouseEnter}
                 onMouseLeave={handleCellMouseLeave}
@@ -318,6 +531,38 @@ export function ZonetrixCanvas({
             );
           })}
         </ZonetrixLayer>
+
+        {showAxisLabels && (
+          <ZonetrixLayer className="zonetrix-layer-axis">
+            {axisSettings.showY &&
+              rowAxisData.map((row) => (
+                <text
+                  key={`row-${row.key}`}
+                  className="zonetrix-axis-label zonetrix-axis-label-y"
+                  x={rowAxisX}
+                  y={row.y}
+                  textAnchor={rowAxisTextAnchor}
+                  dominantBaseline={rowDominantBaseline}
+                >
+                  {row.label}
+                </text>
+              ))}
+
+            {axisSettings.showX &&
+              colAxisData.map((col) => (
+                <text
+                  key={`col-${col.key}`}
+                  className="zonetrix-axis-label zonetrix-axis-label-x"
+                  x={col.x}
+                  y={colAxisY}
+                  textAnchor="middle"
+                  dominantBaseline={columnDominantBaseline}
+                >
+                  {col.label}
+                </text>
+              ))}
+          </ZonetrixLayer>
+        )}
       </svg>
     </div>
   );

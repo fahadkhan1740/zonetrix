@@ -27,6 +27,10 @@ export interface CellId {
 export interface CellMeta {
   /** Display label (e.g., "A12", "B-07", "Booth 23") */
   label?: string;
+  /** Label representing the row (used for axis rendering) */
+  rowLabel?: string;
+  /** Label representing the column (used for axis rendering) */
+  colLabel?: string;
   /** Price for this cell */
   price?: number;
   /** Availability status */
@@ -58,6 +62,43 @@ export interface Cell {
 }
 
 /**
+ * Supported layout object types
+ */
+export type LayoutObjectType = 'stage' | 'screen' | 'custom';
+
+/**
+ * Additional object that can be rendered alongside seats (e.g., stage, screen)
+ */
+export interface LayoutObject {
+  /** Unique identifier for the object */
+  id: string;
+  /** Type of the object */
+  type: LayoutObjectType;
+  /** X coordinate in canvas space (px, center-based) */
+  x: number;
+  /** Y coordinate in canvas space (px, center-based) */
+  y: number;
+  /** Width (px) */
+  width: number;
+  /** Height (px) */
+  height: number;
+  /** Rotation angle in degrees (optional) */
+  rotation?: number;
+  /** Display label */
+  label?: string;
+  /** Arbitrary custom metadata */
+  data?: Record<string, unknown>;
+}
+
+/**
+ * Shared layout configuration options
+ */
+export interface LayoutObjectsConfig {
+  /** Objects to render alongside the main layout (e.g., stage) */
+  objects?: LayoutObject[];
+}
+
+/**
  * Supported layout types
  */
 export type LayoutType = 'grid' | 'arc' | 'circle' | 'sections';
@@ -79,7 +120,7 @@ export interface NumberingConfig {
 /**
  * Grid layout configuration
  */
-export interface GridLayoutConfig {
+export interface GridLayoutConfig extends LayoutObjectsConfig {
   type: 'grid';
   /** Number of rows */
   rows: number;
@@ -100,7 +141,7 @@ export interface GridLayoutConfig {
 /**
  * Arc layout configuration (seats along a circular arc)
  */
-export interface ArcLayoutConfig {
+export interface ArcLayoutConfig extends LayoutObjectsConfig {
   type: 'arc';
   /** Radius of the arc in pixels */
   radius: number;
@@ -119,7 +160,7 @@ export interface ArcLayoutConfig {
 /**
  * Circle/Ring layout configuration (seats around a full circle)
  */
-export interface CircleLayoutConfig {
+export interface CircleLayoutConfig extends LayoutObjectsConfig {
   type: 'circle';
   /** Radius of the circle in pixels */
   radius: number;
@@ -162,6 +203,8 @@ export interface SectionsLayoutConfig {
   type: 'sections';
   /** Array of section blocks */
   blocks: SectionBlock[];
+  /** Objects to render alongside the sections */
+  objects?: LayoutObject[];
 }
 
 /**
@@ -172,6 +215,25 @@ export type LayoutConfig =
   | ArcLayoutConfig
   | CircleLayoutConfig
   | SectionsLayoutConfig;
+
+/**
+ * Axis label configuration for rendering
+ */
+export interface AxisLabelsConfig {
+  /** Enable axis labels */
+  enabled?: boolean;
+  /** Show column labels along the X axis */
+  showX?: boolean;
+  /** Show row labels along the Y axis */
+  showY?: boolean;
+  /** Axis label positions */
+  position?: {
+    x?: 'top' | 'bottom';
+    y?: 'left' | 'right';
+  };
+  /** Distance between axis labels and layout (px) */
+  offset?: number;
+}
 
 /**
  * Theme configuration for rendering
@@ -191,4 +253,12 @@ export interface RenderTheme {
   fontFamily?: string;
   /** Font size (px) */
   fontSize?: number;
+  /** Axis label text color */
+  axisLabelColor?: string;
+  /** Stage/object fill color */
+  objectFillColor?: string;
+  /** Stage/object border color */
+  objectBorderColor?: string;
+  /** Stage/object text color */
+  objectTextColor?: string;
 }

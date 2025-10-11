@@ -1,30 +1,51 @@
 /**
  * CSS Custom Properties for Zonetrix theming
+ * Inspired by modern seat selection interfaces like seats.io
  */
 
 :root {
-  /* Colors - Soft, modern Tailwind-inspired palette */
-  --ztx-seat-color: #f3f4f6;
-  --ztx-seat-color-hover: #e0e7ff;
-  --ztx-seat-color-selected: #818cf8;
-  --ztx-seat-color-unavailable: #d1d5db;
-  --ztx-seat-border: #cbd5e1;
+  /* Colors - Modern, realistic seat selection palette */
+  /* Available seats - Soft, inviting color */
+  --ztx-seat-color: #e0f2fe;
+  --ztx-seat-color-hover: #bae6fd;
+  --ztx-seat-border: #7dd3fc;
+
+  /* Selected seats - Vibrant, confident color */
+  --ztx-seat-color-selected: #22c55e;
+  --ztx-seat-color-selected-hover: #16a34a;
+  --ztx-seat-border-selected: #15803d;
+
+  /* Unavailable seats - Subtle, muted */
+  --ztx-seat-color-unavailable: #f1f5f9;
+  --ztx-seat-border-unavailable: #cbd5e1;
+
+  /* Focus states */
   --ztx-seat-border-focus: #818cf8;
-  --ztx-seat-text: #475569;
+  --ztx-focus-ring-color: #818cf8;
+
+  /* Text colors */
+  --ztx-seat-text: #0c4a6e;
+  --ztx-seat-text-hover: #075985;
   --ztx-seat-text-selected: #ffffff;
+  --ztx-seat-text-unavailable: #94a3b8;
+
+  /* Axis and objects */
+  --ztx-axis-label-color: #334155;
+  --ztx-object-fill: #1e293b;
+  --ztx-object-border: #0f172a;
+  --ztx-object-text: #f8fafc;
 
   /* Sizes */
-  --ztx-cell-radius: 6px;
-  --ztx-font-size: 10px;
+  --ztx-cell-radius: 8px;
+  --ztx-font-size: 11px;
   --ztx-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 
-  /* Transitions */
-  --ztx-transition-duration: 150ms;
-  --ztx-transition-timing: ease-in-out;
+  /* Transitions - Smooth, polished animations */
+  --ztx-transition-duration: 200ms;
+  --ztx-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Focus */
-  --ztx-focus-ring-width: 2px;
+  --ztx-focus-ring-width: 3px;
   --ztx-focus-ring-offset: 2px;
-  --ztx-focus-ring-color: var(--ztx-seat-border-focus);
 }

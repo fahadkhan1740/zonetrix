@@ -167,3 +167,39 @@ export function generateIndexLabelWithCols(
   const index = row * cols + col + startIndex;
   return `${index}`;
 }
+
+/**
+ * Compute axis labels (row and column) for grid-based layouts
+ */
+export function computeAxisLabels(
+  row: number,
+  col: number,
+  config?: NumberingConfig,
+  labelPrefix?: string
+): { rowLabel: string; colLabel: string } {
+  const scheme = config?.scheme || 'row-col';
+  const startIndex = config?.startIndex ?? 1;
+  const colStart = config?.colStart ?? 1;
+
+  if (scheme === 'row-col') {
+    const rowLabel = config?.rowLabels
+      ? config.rowLabels[row] || `${row + startIndex}`
+      : labelPrefix
+        ? `${labelPrefix}${row + startIndex}`
+        : getAlphaLabel(row);
+    return { rowLabel, colLabel: `${col + colStart}` };
+  }
+
+  if (scheme === 'alpha-rows') {
+    const rowLabel = config?.rowLabels
+      ? config.rowLabels[row] || getAlphaLabel(row)
+      : getAlphaLabel(row);
+    return { rowLabel, colLabel: `${col + colStart}` };
+  }
+
+  // Fallback for other schemes: use numeric indices
+  return {
+    rowLabel: `${row + startIndex}`,
+    colLabel: `${col + colStart}`,
+  };
+}

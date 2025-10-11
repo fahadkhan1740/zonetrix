@@ -30,6 +30,10 @@ export type {
   SectionsLayoutConfig,
   SectionBlock,
   NumberingConfig,
+  LayoutObject,
+  LayoutObjectType,
+  LayoutObjectsConfig,
+  AxisLabelsConfig,
   RenderTheme,
 } from './core/models';
 

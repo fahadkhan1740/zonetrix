@@ -1,143 +1,212 @@
 /**
- * Base styles for Zonetrix components
+ * Base styles for Zonetrix components with Tailwind 4
+ * Enhanced with modern seat selection interactions
  */
 
+@import "tailwindcss";
 @import "./variables.css";
 
 .zonetrix {
-  display: block;
-  width: 100%;
-  height: 100%;
+  @apply block w-full h-full select-none;
   font-family: var(--ztx-font-family);
   font-size: var(--ztx-font-size);
-  user-select: none;
   -webkit-user-select: none;
 }
 
 .zonetrix-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+  @apply block w-full h-full;
 }
 
 .zonetrix-cell {
-  cursor: pointer;
-  transition: all var(--ztx-transition-duration) var(--ztx-transition-timing);
-  outline: none;
+  @apply cursor-pointer outline-none;
 }
 
 .zonetrix-cell-rect {
   fill: var(--ztx-seat-color);
   stroke: var(--ztx-seat-border);
-  stroke-width: 1.5;
-  transition: all var(--ztx-transition-duration) var(--ztx-transition-timing);
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+  stroke-width: 2;
+  filter: drop-shadow(0 2px 4px rgba(148, 163, 184, 0.15));
 }
 
+/* Hover state - Brighter, more inviting */
 .zonetrix-cell:hover .zonetrix-cell-rect {
   fill: var(--ztx-seat-color-hover);
-  stroke: var(--ztx-seat-border-focus);
-  stroke-width: 2;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-  transform: scale(1.05);
-  transform-origin: center;
+  stroke: var(--ztx-seat-border);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.25));
 }
 
+/* Focus state - Clear focus ring */
 .zonetrix-cell:focus .zonetrix-cell-rect {
   stroke: var(--ztx-focus-ring-color);
   stroke-width: var(--ztx-focus-ring-width);
+  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
 }
 
+/* Selected state - Vibrant green with glow */
 .zonetrix-cell.is-selected .zonetrix-cell-rect {
   fill: var(--ztx-seat-color-selected);
-  stroke: var(--ztx-seat-color-selected);
-  stroke-width: 2;
-  filter: drop-shadow(0 2px 4px rgba(129, 140, 248, 0.3));
+  stroke: var(--ztx-seat-border-selected);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 4px 12px rgba(34, 197, 94, 0.4));
 }
 
+/* Selected hover state - Darker green */
+.zonetrix-cell.is-selected:hover .zonetrix-cell-rect {
+  fill: var(--ztx-seat-color-selected-hover);
+  stroke: var(--ztx-seat-border-selected);
+  stroke-width: 3;
+  filter: drop-shadow(0 6px 16px rgba(34, 197, 94, 0.5));
+}
+
+/* Unavailable state - Muted and disabled */
 .zonetrix-cell.is-unavailable .zonetrix-cell-rect {
   fill: var(--ztx-seat-color-unavailable);
-  stroke: var(--ztx-seat-color-unavailable);
-  cursor: not-allowed;
+  stroke: var(--ztx-seat-border-unavailable);
+  stroke-width: 1.5;
+  @apply cursor-not-allowed;
+  filter: drop-shadow(0 1px 2px rgba(148, 163, 184, 0.1));
+  opacity: 0.6;
 }
 
 .zonetrix-cell.is-unavailable {
-  cursor: not-allowed;
-  opacity: 0.5;
+  @apply cursor-not-allowed;
 }
 
+/* Unavailable no hover effect */
+.zonetrix-cell.is-unavailable:hover .zonetrix-cell-rect {
+  filter: drop-shadow(0 1px 2px rgba(148, 163, 184, 0.1));
+}
+
+/* Labels */
 .zonetrix-cell-label {
   fill: var(--ztx-seat-text);
   font-size: var(--ztx-font-size);
   font-family: var(--ztx-font-family);
-  font-weight: 500;
+  @apply font-semibold;
   text-anchor: middle;
   dominant-baseline: middle;
   pointer-events: none;
-  opacity: 0.7;
+  @apply opacity-80;
   transition: all var(--ztx-transition-duration) var(--ztx-transition-timing);
+}
+
+.zonetrix-cell:hover .zonetrix-cell-label {
+  fill: var(--ztx-seat-text-hover);
+  @apply opacity-100;
 }
 
 .zonetrix-cell.is-selected .zonetrix-cell-label {
   fill: var(--ztx-seat-text-selected);
-  opacity: 1;
-  font-weight: 600;
+  @apply opacity-100 font-bold;
+  text-shadow: 0 1px 2px rgba(21, 128, 61, 0.3);
 }
 
-.zonetrix-cell:hover .zonetrix-cell-label,
-.zonetrix-cell:focus .zonetrix-cell-label {
-  opacity: 1;
-  font-weight: 600;
-  font-size: calc(var(--ztx-font-size) * 1.1);
+.zonetrix-cell.is-selected:hover .zonetrix-cell-label {
+  fill: var(--ztx-seat-text-selected);
+  @apply opacity-100 font-bold;
 }
 
-/* Tooltip */
-.zonetrix-tooltip {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+.zonetrix-cell.is-unavailable .zonetrix-cell-label {
+  fill: var(--ztx-seat-text-unavailable);
+  @apply opacity-50;
+}
+
+.zonetrix-layer-axis,
+.zonetrix-layer-objects {
   pointer-events: none;
-  z-index: 1000;
-  white-space: nowrap;
-  transform: translate(-50%, -100%);
-  margin-top: -8px;
 }
 
-/* Legend */
+.zonetrix-axis-label {
+  fill: var(--ztx-axis-label-color);
+  font-size: calc(var(--ztx-font-size) * 1.2);
+  @apply font-bold uppercase tracking-wider;
+  letter-spacing: 0.05em;
+  opacity: 0.75;
+}
+
+.zonetrix-object {
+  pointer-events: none;
+}
+
+.zonetrix-object-rect {
+  fill: var(--ztx-object-fill);
+  stroke: var(--ztx-object-border);
+  stroke-width: 2;
+  filter: drop-shadow(0 8px 16px rgba(100, 116, 139, 0.25));
+}
+
+.zonetrix-object-label {
+  fill: var(--ztx-object-text);
+  font-size: calc(var(--ztx-font-size) * 1.4);
+  @apply font-extrabold tracking-widest;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px rgba(148, 163, 184, 0.4);
+}
+
+/* Tooltip - Modern design */
+.zonetrix-tooltip {
+  @apply absolute text-white px-3 py-2 rounded-lg text-xs font-medium pointer-events-none whitespace-nowrap;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transform: translate(-50%, -100%);
+  margin-top: -12px;
+  z-index: 1000;
+}
+
+.zonetrix-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #2563eb;
+}
+
+/* Legend - Enhanced styling */
 .zonetrix-legend {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  padding: 12px;
-  font-size: 12px;
+  @apply flex gap-6 items-center p-4 text-xs font-medium;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(148, 163, 184, 0.15);
 }
 
 .zonetrix-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  @apply flex items-center gap-2;
 }
 
 .zonetrix-legend-color {
-  width: 16px;
-  height: 16px;
-  border-radius: var(--ztx-cell-radius);
-  border: 1px solid var(--ztx-seat-border);
+  @apply w-5 h-5 rounded;
+  border-width: 2px;
+  box-shadow: 0 2px 4px rgba(148, 163, 184, 0.2);
+  transition: all 150ms ease-in-out;
+}
+
+.zonetrix-legend-item:hover .zonetrix-legend-color {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(148, 163, 184, 0.3);
 }
 
 .zonetrix-legend-color.available {
   background-color: var(--ztx-seat-color);
+  border-color: var(--ztx-seat-border);
 }
 
 .zonetrix-legend-color.selected {
   background-color: var(--ztx-seat-color-selected);
+  border-color: var(--ztx-seat-border-selected);
 }
 
 .zonetrix-legend-color.unavailable {
   background-color: var(--ztx-seat-color-unavailable);
+  border-color: var(--ztx-seat-border-unavailable);
+  opacity: 0.6;
 }
 
 /* RTL Support */

@@ -3,7 +3,12 @@
  */
 
 import type { Cell, GridLayoutConfig } from './models';
-import { generateIndexLabelWithCols, generateLabel, generateSnakeLabelWithCols } from './numbering';
+import {
+  computeAxisLabels,
+  generateIndexLabelWithCols,
+  generateLabel,
+  generateSnakeLabelWithCols,
+} from './numbering';
 
 /**
  * Generate cells for a grid layout
@@ -32,6 +37,8 @@ export function createGridLayout(config: GridLayoutConfig): Cell[] {
         label = generateLabel(row, col, numbering, labelPrefix);
       }
 
+      const { rowLabel, colLabel } = computeAxisLabels(row, col, numbering, labelPrefix);
+
       const cell: Cell = {
         id: {
           row,
@@ -44,6 +51,8 @@ export function createGridLayout(config: GridLayoutConfig): Cell[] {
         h: cellSize,
         meta: {
           label,
+          rowLabel,
+          colLabel,
           status: 'available',
         },
       };

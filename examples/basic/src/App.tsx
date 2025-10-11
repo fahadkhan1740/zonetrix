@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   type ArcLayoutConfig,
   type Cell,
   type CircleLayoutConfig,
   type GridLayoutConfig,
   type LayoutConfig,
+  type AxisLabelsConfig,
+  type LayoutObject,
   type SectionBlock,
   type SectionsLayoutConfig,
   ZonetrixCanvas,
@@ -14,12 +16,23 @@ import { presets } from './config-presets';
 
 // Local storage key
 const STORAGE_KEY = 'zonetrix-demo-config';
+const GRID_ORIGIN = { x: 100, y: 100 } as const;
+const ARC_ORIGIN = { x: 400, y: 300 } as const;
+const CIRCLE_ORIGIN = { x: 300, y: 300 } as const;
+const OBJECT_MARGIN = 48;
 
 function App() {
   // Layout configuration state
   const [layoutType, setLayoutType] = useState<'grid' | 'arc' | 'circle' | 'sections'>('grid');
   const [selected, setSelected] = useState<string[]>([]);
   const [rtl, setRtl] = useState(false);
+  const [showSeatLabels, setShowSeatLabels] = useState(false);
+  const [axisEnabled, setAxisEnabled] = useState(true);
+  const [axisShowColumns, setAxisShowColumns] = useState(true);
+  const [axisShowRows, setAxisShowRows] = useState(true);
+  const [showObject, setShowObject] = useState(true);
+  const [objectType, setObjectType] = useState<'stage' | 'screen' | 'custom'>('stage');
+  const [objectLabel, setObjectLabel] = useState('Stage');
 
   // Grid config
   const [gridRows, setGridRows] = useState(10);
@@ -108,6 +121,137 @@ function App() {
     circleCellSize,
   ]);
 
+  const axisConfig = useMemo<AxisLabelsConfig>(
+    () =>
+      axisEnabled
+        ? {
+            enabled: true,
+            showX: axisShowColumns,
+            showY: axisShowRows,
+            position: { x: 'top', y: 'left' },
+            offset: 48,
+          }
+        : { enabled: false },
+    [axisEnabled, axisShowColumns, axisShowRows]
+  );
+
+  const layoutObjects = useMemo<LayoutObject[]>(() => {
+    if (!showObject) return [];
+
+    const resolvedLabel =
+      objectLabel.trim() ||
+      (objectType === 'stage' ? 'Stage' : objectType === 'screen' ? 'Screen' : 'Custom Object');
+
+    if (layoutType === 'grid') {
+      const totalWidth = gridCols * gridCellSize + (gridCols - 1) * gridGap;
+      const width = Math.max(100, totalWidth);
+      const height = Math.max(36, gridCellSize * 1.4);
+      const x = GRID_ORIGIN.x + totalWidth / 2;
+      const y = GRID_ORIGIN.y - height / 2 - OBJECT_MARGIN;
+
+      return [
+        {
+          id: 'primary-object',
+          type: objectType,
+          label: resolvedLabel,
+          x,
+          y,
+          width,
+          height,
+        },
+      ];
+    }
+
+    if (layoutType === 'arc') {
+      const width = Math.max(140, arcRadius * 1.6);
+      const height = Math.max(36, arcCellSize * 1.4);
+      const x = ARC_ORIGIN.x;
+      const y = ARC_ORIGIN.y - arcRadius - height / 2 - OBJECT_MARGIN;
+      return [
+        {
+          id: 'primary-object',
+          type: objectType,
+          label: resolvedLabel,
+          x,
+          y,
+          width,
+          height,
+        },
+      ];
+    }
+
+    if (layoutType === 'circle') {
+      const width = Math.max(140, circleRadius * 1.4);
+      const height = Math.max(32, circleCellSize * 1.3);
+      const x = CIRCLE_ORIGIN.x;
+      const y = CIRCLE_ORIGIN.y - circleRadius - height / 2 - OBJECT_MARGIN;
+      return [
+        {
+          id: 'primary-object',
+          type: objectType,
+          label: resolvedLabel,
+          x,
+          y,
+          width,
+          height,
+        },
+      ];
+    }
+
+    if (layoutType === 'sections' && sectionBlocks.length > 0) {
+      let minX = Number.POSITIVE_INFINITY;
+      let maxX = Number.NEGATIVE_INFINITY;
+      let minY = Number.POSITIVE_INFINITY;
+      let maxCellSize = 0;
+
+      for (const block of sectionBlocks) {
+        const gap = block.gap ?? 0;
+        const blockWidth = block.cols * block.cellSize + (block.cols - 1) * gap;
+        minX = Math.min(minX, block.origin.x);
+        maxX = Math.max(maxX, block.origin.x + blockWidth);
+        minY = Math.min(minY, block.origin.y);
+        maxCellSize = Math.max(maxCellSize, block.cellSize);
+      }
+
+      if (!Number.isFinite(minX) || !Number.isFinite(maxX) || !Number.isFinite(minY)) {
+        return [];
+      }
+
+      const seatWidth = maxX - minX;
+      const width = Math.max(120, seatWidth);
+      const height = Math.max(36, maxCellSize * 1.4);
+      const x = minX + seatWidth / 2;
+      const y = minY - height / 2 - OBJECT_MARGIN;
+
+      return [
+        {
+          id: 'primary-object',
+          type: objectType,
+          label: resolvedLabel,
+          x,
+          y,
+          width,
+          height,
+        },
+      ];
+    }
+
+    return [];
+  }, [
+    showObject,
+    objectLabel,
+    objectType,
+    layoutType,
+    gridCols,
+    gridCellSize,
+    gridGap,
+    arcRadius,
+    arcCellSize,
+    circleRadius,
+    circleCellSize,
+    sectionBlocks,
+  ]);
+
   // Build current layout config
   const currentLayout: LayoutConfig = (() => {
     switch (layoutType) {
@@ -118,9 +262,10 @@ function App() {
           cols: gridCols,
           cellSize: gridCellSize,
           gap: gridGap,
-          origin: { x: 100, y: 100 },
+          origin: GRID_ORIGIN,
           labelPrefix: gridLabelPrefix,
           numbering: { scheme: gridScheme, startIndex: 1 },
+          objects: layoutObjects,
         } as GridLayoutConfig;
 
       case 'arc':
@@ -130,8 +275,9 @@ function App() {
           sweepDegrees: arcSweepDegrees,
           count: arcCount,
           cellSize: arcCellSize,
-          origin: { x: 400, y: 300 },
+          origin: ARC_ORIGIN,
           numbering: { scheme: 'index', startIndex: 1 },
+          objects: layoutObjects,
         } as ArcLayoutConfig;
 
       case 'circle':
@@ -140,14 +286,16 @@ function App() {
           radius: circleRadius,
           count: circleCount,
           cellSize: circleCellSize,
-          origin: { x: 300, y: 300 },
+          origin: CIRCLE_ORIGIN,
           numbering: { scheme: 'index', startIndex: 1 },
+          objects: layoutObjects,
         } as CircleLayoutConfig;
 
       case 'sections':
         return {
           type: 'sections',
           blocks: sectionBlocks,
+          objects: layoutObjects,
         } as SectionsLayoutConfig;
 
       default:
@@ -157,6 +305,8 @@ function App() {
           cols: 12,
           cellSize: 22,
           gap: 6,
+          origin: GRID_ORIGIN,
+          objects: layoutObjects,
         } as GridLayoutConfig;
     }
   })();
@@ -212,6 +362,25 @@ function App() {
     );
   };
 
+  const handleObjectTypeChange = (type: 'stage' | 'screen' | 'custom') => {
+    setObjectType(type);
+    setObjectLabel((prev) => {
+      const defaults = ['Stage', 'Screen', 'Custom Object'];
+      if (defaults.includes(prev) || prev.trim().length === 0) {
+        if (type === 'stage') return 'Stage';
+        if (type === 'screen') return 'Screen';
+        return 'Custom Object';
+      }
+      return prev;
+    });
+  };
+
+  const axisColor = '#1f2937';
+  const objectFillColor =
+    objectType === 'stage' ? '#1f2937' : objectType === 'screen' ? '#0f172a' : '#334155';
+  const objectBorderColor = '#020617';
+  const objectTextColor = '#f8fafc';
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -220,7 +389,7 @@ function App() {
 
         <div className="divider" />
 
-        <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Presets</h3>
+        <h3 className="text-sm font-semibold mb-3">Presets</h3>
         <div className="preset-buttons">
           {presets.map((preset) => (
             <button
@@ -228,8 +397,8 @@ function App() {
               className="preset-button"
               onClick={() => handleLoadPreset(preset.config)}
             >
-              <div style={{ fontWeight: 600 }}>{preset.name}</div>
-              <div style={{ fontSize: 12, color: '#6b7280' }}>{preset.description}</div>
+              <div className="font-semibold">{preset.name}</div>
+              <div className="text-xs text-gray-500">{preset.description}</div>
             </button>
           ))}
         </div>
@@ -238,7 +407,7 @@ function App() {
 
         <div className="form-group">
           <label>Layout Type</label>
-          <select value={layoutType} onChange={(e) => setLayoutType(e.target.value as any)}>
+          <select value={layoutType} onChange={(e) => setLayoutType(e.target.value as 'grid' | 'arc' | 'circle' | 'sections')}>
             <option value="grid">Grid</option>
             <option value="arc">Arc</option>
             <option value="circle">Circle</option>
@@ -306,7 +475,7 @@ function App() {
 
             <div className="form-group">
               <label>Numbering Scheme</label>
-              <select value={gridScheme} onChange={(e) => setGridScheme(e.target.value as any)}>
+              <select value={gridScheme} onChange={(e) => setGridScheme(e.target.value as 'row-col' | 'snake' | 'index' | 'alpha-rows')}>
                 <option value="row-col">Row-Column</option>
                 <option value="snake">Snake</option>
                 <option value="index">Index</option>
@@ -487,6 +656,90 @@ function App() {
 
         <div className="divider" />
 
+        <h3 className="text-sm font-semibold mb-3">Display</h3>
+        <div className="display-section">
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={showSeatLabels}
+              onChange={(e) => setShowSeatLabels(e.target.checked)}
+            />
+            Show seat labels
+          </label>
+
+          <div>
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={axisEnabled}
+                onChange={(e) => setAxisEnabled(e.target.checked)}
+              />
+              Show axis labels
+            </label>
+            {axisEnabled && (
+              <div className="axis-options">
+                <label className="checkbox-row axis-option">
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={axisShowColumns}
+                    onChange={(e) => setAxisShowColumns(e.target.checked)}
+                  />
+                  Columns (X axis)
+                </label>
+                <label className="checkbox-row axis-option">
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={axisShowRows}
+                    onChange={(e) => setAxisShowRows(e.target.checked)}
+                  />
+                  Rows (Y axis)
+                </label>
+              </div>
+            )}
+          </div>
+
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={showObject}
+              onChange={(e) => setShowObject(e.target.checked)}
+            />
+            Show stage/screen
+          </label>
+
+          {showObject && (
+            <>
+              <div className="form-group">
+                <label>Object Type</label>
+                <select
+                  value={objectType}
+                  onChange={(e) => handleObjectTypeChange(e.target.value as 'stage' | 'screen' | 'custom')}
+                >
+                  <option value="stage">Stage</option>
+                  <option value="screen">Screen</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Object Label</label>
+                <input
+                  type="text"
+                  value={objectLabel}
+                  onChange={(e) => setObjectLabel(e.target.value)}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="divider" />
+
         <button className="button button-secondary" onClick={() => setSelected([])}>
           Clear Selection
         </button>
@@ -531,11 +784,17 @@ function App() {
               onSelectionChange={setSelected}
               onCellClick={(cell: Cell) => console.log('Cell clicked:', cell)}
               dir={rtl ? 'rtl' : 'ltr'}
+              showSeatLabels={showSeatLabels}
+              axisLabels={axisConfig}
               theme={{
                 seatColorSelected: '#818cf8',
                 seatColor: '#f3f4f6',
                 seatColorUnavailable: '#d1d5db',
                 seatBorder: '#cbd5e1',
+                axisLabelColor: axisColor,
+                objectFillColor,
+                objectBorderColor,
+                objectTextColor,
               }}
             />
           </div>

@@ -10,6 +10,7 @@ export interface ZonetrixCellProps {
   selected: boolean;
   disabled: boolean;
   theme?: RenderTheme;
+  showLabel?: boolean;
   onClick?: (cell: Cell) => void;
   onMouseEnter?: (cell: Cell) => void;
   onMouseLeave?: (cell: Cell) => void;
@@ -24,6 +25,7 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
     selected,
     disabled,
     theme,
+    showLabel = true,
     onClick,
     onMouseEnter,
     onMouseLeave,
@@ -31,7 +33,7 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
     onBlur,
     tabIndex = -1,
   }) => {
-    const { x, y, w, h, rotation = 0, meta } = cell;
+    const { x, y, w, h, meta } = cell;
     const label = meta?.label || '';
     const status = meta?.status || 'available';
 
@@ -82,7 +84,6 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
     return (
       <g
         className={classNames}
-        transform={`translate(${x}, ${y}) rotate(${rotation})`}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -97,16 +98,18 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
       >
         <rect
           className="zonetrix-cell-rect"
-          x={-w / 2}
-          y={-h / 2}
+          x={x - w / 2}
+          y={y - h / 2}
           width={w}
           height={h}
           rx={cellRadius}
           ry={cellRadius}
         />
-        <text className="zonetrix-cell-label" x={0} y={0}>
-          {label}
-        </text>
+        {showLabel && (
+          <text className="zonetrix-cell-label" x={x} y={y}>
+            {label}
+          </text>
+        )}
       </g>
     );
   }
