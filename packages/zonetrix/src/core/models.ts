@@ -136,6 +136,10 @@ export interface GridLayoutConfig extends LayoutObjectsConfig {
   numbering?: NumberingConfig;
   /** Label prefix for rows (e.g., "A" for rows) */
   labelPrefix?: string;
+  /** Automatically prevent overlaps by adjusting layout (default: true) */
+  autoPreventOverlap?: boolean;
+  /** Minimum spacing between cells in pixels (default: 2) */
+  minSpacing?: number;
 }
 
 /**
@@ -155,6 +159,10 @@ export interface ArcLayoutConfig extends LayoutObjectsConfig {
   origin?: { x: number; y: number };
   /** Numbering configuration */
   numbering?: NumberingConfig;
+  /** Automatically prevent overlaps by adjusting layout (default: true) */
+  autoPreventOverlap?: boolean;
+  /** Minimum spacing between cells in pixels (default: 2) */
+  minSpacing?: number;
 }
 
 /**
@@ -172,6 +180,10 @@ export interface CircleLayoutConfig extends LayoutObjectsConfig {
   origin?: { x: number; y: number };
   /** Numbering configuration */
   numbering?: NumberingConfig;
+  /** Automatically prevent overlaps by adjusting layout (default: true) */
+  autoPreventOverlap?: boolean;
+  /** Minimum spacing between cells in pixels (default: 2) */
+  minSpacing?: number;
 }
 
 /**
@@ -196,6 +208,10 @@ export interface SectionBlock {
   numbering?: NumberingConfig;
   /** Label prefix for this section */
   labelPrefix?: string;
+  /** Automatically prevent overlaps by adjusting layout (default: true) */
+  autoPreventOverlap?: boolean;
+  /** Minimum spacing between cells in pixels (default: 2) */
+  minSpacing?: number;
 }
 
 /**

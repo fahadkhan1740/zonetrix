@@ -18,5 +18,7 @@ export function createCircleLayout(config: CircleLayoutConfig): Cell[] {
     cellSize: config.cellSize,
     origin: config.origin,
     numbering: config.numbering,
+    autoPreventOverlap: config.autoPreventOverlap,
+    minSpacing: config.minSpacing,
   });
 }

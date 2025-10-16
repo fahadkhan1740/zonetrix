@@ -5,12 +5,29 @@
 import { polarToCartesian } from './math';
 import type { ArcLayoutConfig, Cell } from './models';
 import { generateAngularLabel } from './numbering';
+import { calculateMinimumArcRadius } from './collision-detection';
 
 /**
- * Generate cells for an arc layout
+ * Generate cells for an arc layout with automatic overlap prevention
  */
 export function createArcLayout(config: ArcLayoutConfig): Cell[] {
-  const { radius, sweepDegrees, count, cellSize, origin = { x: 0, y: 0 }, numbering } = config;
+  const {
+    radius,
+    sweepDegrees,
+    count,
+    cellSize,
+    origin = { x: 0, y: 0 },
+    numbering,
+    autoPreventOverlap = true,
+    minSpacing = 2,
+  } = config;
+
+  // Calculate minimum radius to prevent overlaps
+  let adjustedRadius = radius;
+  if (autoPreventOverlap && count > 1) {
+    const minRadius = calculateMinimumArcRadius(count, cellSize, sweepDegrees, minSpacing);
+    adjustedRadius = Math.max(radius, minRadius);
+  }
 
   const cells: Cell[] = [];
 
@@ -23,8 +40,8 @@ export function createArcLayout(config: ArcLayoutConfig): Cell[] {
   for (let i = 0; i < count; i++) {
     const angle = startAngle + i * angleStep;
 
-    // Calculate position on arc
-    const pos = polarToCartesian(origin.x, origin.y, radius, angle);
+    // Calculate position on arc using adjusted radius
+    const pos = polarToCartesian(origin.x, origin.y, adjustedRadius, angle);
 
     // Calculate rotation to face the center
     const rotation = angle + 90; // Face inward

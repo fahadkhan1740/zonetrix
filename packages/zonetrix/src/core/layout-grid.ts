@@ -9,21 +9,39 @@ import {
   generateLabel,
   generateSnakeLabelWithCols,
 } from './numbering';
+import { calculateMinimumGridGap } from './collision-detection';
 
 /**
- * Generate cells for a grid layout
+ * Generate cells for a grid layout with automatic overlap prevention
  */
 export function createGridLayout(config: GridLayoutConfig): Cell[] {
-  const { rows, cols, cellSize, gap = 0, origin = { x: 0, y: 0 }, numbering, labelPrefix } = config;
+  const {
+    rows,
+    cols,
+    cellSize,
+    gap = 0,
+    origin = { x: 0, y: 0 },
+    numbering,
+    labelPrefix,
+    autoPreventOverlap = true,
+    minSpacing = 2,
+  } = config;
+
+  // Calculate minimum gap to prevent overlaps
+  let adjustedGap = gap;
+  if (autoPreventOverlap) {
+    const minGap = calculateMinimumGridGap(cellSize, cellSize, minSpacing);
+    adjustedGap = Math.max(gap, minGap);
+  }
 
   const cells: Cell[] = [];
   const startIndex = numbering?.startIndex ?? 1;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      // Calculate position
-      const x = origin.x + col * (cellSize + gap) + cellSize / 2;
-      const y = origin.y + row * (cellSize + gap) + cellSize / 2;
+      // Calculate position using adjusted gap
+      const x = origin.x + col * (cellSize + adjustedGap) + cellSize / 2;
+      const y = origin.y + row * (cellSize + adjustedGap) + cellSize / 2;
 
       // Generate label based on scheme
       let label: string;

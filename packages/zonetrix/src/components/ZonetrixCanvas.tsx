@@ -15,8 +15,10 @@ import type {
   LayoutObject,
   RenderTheme,
 } from '../core/models';
+import { useZoomPan } from '../hooks/useZoomPan';
 import { ZonetrixCell } from './ZonetrixCell';
 import { ZonetrixLayer } from './ZonetrixLayer';
+import { ZonetrixZoomControls } from './ZonetrixZoomControls';
 
 export interface ZonetrixProps {
   /** Layout configuration */
@@ -47,8 +49,16 @@ export interface ZonetrixProps {
   className?: string;
   /** Additional styles */
   style?: React.CSSProperties;
-  /** Enable pan/zoom (future feature, placeholder) */
+  /** Enable pan/zoom controls and interactions */
   enablePanZoom?: boolean;
+  /** Show zoom control buttons (default: true when enablePanZoom is true) */
+  showZoomControls?: boolean;
+  /** Minimum zoom level (default: 0.1) */
+  minZoom?: number;
+  /** Maximum zoom level (default: 5) */
+  maxZoom?: number;
+  /** Zoom speed/sensitivity (default: 0.1) */
+  zoomSpeed?: number;
 }
 
 type AxisSettings = {
@@ -83,7 +93,11 @@ export function ZonetrixCanvas({
   dir = 'ltr',
   className = '',
   style,
-  enablePanZoom: _enablePanZoom = false,
+  enablePanZoom = false,
+  showZoomControls = true,
+  minZoom = 0.1,
+  maxZoom = 5,
+  zoomSpeed = 0.1,
 }: ZonetrixProps) {
   // Determine if controlled or uncontrolled
   const isControlled = value !== undefined;
@@ -94,6 +108,15 @@ export function ZonetrixCanvas({
   const [_hoveredCell, setHoveredCell] = useState<Cell | null>(null);
 
   const containerRef = useRef<SVGSVGElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Initialize zoom/pan functionality
+  const zoomPan = useZoomPan({
+    minZoom,
+    maxZoom,
+    zoomSpeed,
+    initialZoom: 1,
+  });
 
   // Generate cells from layout configuration (memoized)
   const cells = useMemo(() => {
@@ -189,7 +212,7 @@ export function ZonetrixCanvas({
     return { minX, minY, maxX, maxY, width, height };
   }, [cells.length, cellsBounds, layoutObjects]);
 
-  const viewBox = useMemo(() => {
+  const baseViewBox = useMemo(() => {
     const padding = 20;
     const axisExtraX = axisSettings.offset + 30;
     const axisExtraY = axisSettings.offset + 30;
@@ -222,6 +245,30 @@ export function ZonetrixCanvas({
       height: contentBounds.height + padding * 2 + extraTop + extraBottom,
     };
   }, [contentBounds, axisSettings]);
+
+  // Apply zoom and pan to viewBox
+  const viewBox = useMemo(() => {
+    if (!enablePanZoom) {
+      return baseViewBox;
+    }
+
+    // Apply zoom by adjusting viewBox dimensions (inverse relationship)
+    // Higher zoom = smaller viewBox = zoomed in
+    const scaledWidth = baseViewBox.width / zoomPan.zoom;
+    const scaledHeight = baseViewBox.height / zoomPan.zoom;
+
+    // Apply pan by adjusting viewBox position
+    // Convert screen-space pan to viewBox space
+    const panX = -zoomPan.panX / zoomPan.zoom;
+    const panY = -zoomPan.panY / zoomPan.zoom;
+
+    return {
+      x: baseViewBox.x + panX,
+      y: baseViewBox.y + panY,
+      width: scaledWidth,
+      height: scaledHeight,
+    };
+  }, [baseViewBox, enablePanZoom, zoomPan.zoom, zoomPan.panX, zoomPan.panY]);
 
   const rowAxisData = useMemo(() => {
     if (!axisSettings.showY) return [];
@@ -430,6 +477,80 @@ export function ZonetrixCanvas({
     [focusedCellLabel, cellsByLabel, cells, layout, dir]
   );
 
+  // Zoom and pan event handlers
+  const handleFitToView = useCallback(() => {
+    if (!enablePanZoom || !wrapperRef.current) return;
+    const rect = wrapperRef.current.getBoundingClientRect();
+    zoomPan.fitToView(
+      baseViewBox.width,
+      baseViewBox.height,
+      rect.width,
+      rect.height,
+      40
+    );
+  }, [enablePanZoom, zoomPan, baseViewBox]);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (!enablePanZoom || e.button !== 0) return;
+      e.preventDefault();
+      zoomPan.startPan(e.clientX, e.clientY);
+    },
+    [enablePanZoom, zoomPan]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!enablePanZoom) return;
+      zoomPan.updatePan(e.clientX, e.clientY);
+    },
+    [enablePanZoom, zoomPan]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (!enablePanZoom) return;
+    zoomPan.endPan();
+  }, [enablePanZoom, zoomPan]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (!enablePanZoom) return;
+    zoomPan.endPan();
+  }, [enablePanZoom, zoomPan]);
+
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      if (!enablePanZoom) return;
+      e.preventDefault();
+
+      // Convert React synthetic event to native event for the hook
+      const nativeEvent = e.nativeEvent;
+      zoomPan.handleWheel(nativeEvent);
+    },
+    [enablePanZoom, zoomPan]
+  );
+
+  // Keyboard zoom shortcuts
+  const handleZoomKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!enablePanZoom) return;
+
+      if ((e.metaKey || e.ctrlKey) && e.key === '=') {
+        // Cmd/Ctrl + = for zoom in
+        e.preventDefault();
+        zoomPan.zoomIn();
+      } else if ((e.metaKey || e.ctrlKey) && e.key === '-') {
+        // Cmd/Ctrl + - for zoom out
+        e.preventDefault();
+        zoomPan.zoomOut();
+      } else if ((e.metaKey || e.ctrlKey) && e.key === '0') {
+        // Cmd/Ctrl + 0 for reset
+        e.preventDefault();
+        handleFitToView();
+      }
+    },
+    [enablePanZoom, zoomPan, handleFitToView]
+  );
+
   // Apply theme variables
   useEffect(() => {
     if (!containerRef.current || !theme) return;
@@ -501,17 +622,40 @@ export function ZonetrixCanvas({
 
   return (
     <div
-      className={`zonetrix ${className}`.trim()}
+      ref={wrapperRef}
+      className={`zonetrix ${enablePanZoom ? 'zonetrix-zoomable' : ''} ${className}`.trim()}
       dir={dir}
-      style={style}
-      onKeyDown={handleKeyDown}
+      style={{ ...style, position: 'relative' }}
+      onKeyDown={(e) => {
+        handleKeyDown(e);
+        handleZoomKeyDown(e);
+      }}
     >
+      {enablePanZoom && showZoomControls && (
+        <ZonetrixZoomControls
+          zoom={zoomPan.zoom}
+          onZoomIn={zoomPan.zoomIn}
+          onZoomOut={zoomPan.zoomOut}
+          onReset={zoomPan.resetZoom}
+          onFitToView={handleFitToView}
+          minZoom={minZoom}
+          maxZoom={maxZoom}
+        />
+      )}
       <svg
         ref={containerRef}
-        className="zonetrix-svg"
+        className={`zonetrix-svg ${zoomPan.isPanning ? 'is-panning' : ''}`}
         viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
         role="grid"
         aria-label="Venue seating layout"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onWheel={handleWheel}
+        style={{
+          cursor: enablePanZoom ? (zoomPan.isPanning ? 'grabbing' : 'grab') : 'default',
+        }}
       >
         {layoutObjects.length > 0 && (
           <ZonetrixLayer className="zonetrix-layer-objects">

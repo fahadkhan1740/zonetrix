@@ -246,3 +246,63 @@ export function distance(x1: number, y1: number, x2: number, y2: number): number
 export function mirrorXForRTL(x: number, containerWidth: number, rtl: boolean): number {
   return rtl ? containerWidth - x : x;
 }
+
+/**
+ * Clamp a value between min and max
+ */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+/**
+ * Linear interpolation between two values
+ */
+export function lerp(start: number, end: number, t: number): number {
+  return start + (end - start) * t;
+}
+
+/**
+ * Check if a point is inside a rectangle
+ */
+export function pointInRect(
+  px: number,
+  py: number,
+  rx: number,
+  ry: number,
+  rw: number,
+  rh: number
+): boolean {
+  return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
+}
+
+/**
+ * Transform a point using zoom and pan
+ */
+export function transformPoint(
+  x: number,
+  y: number,
+  zoom: number,
+  panX: number,
+  panY: number
+): { x: number; y: number } {
+  return {
+    x: x * zoom + panX,
+    y: y * zoom + panY,
+  };
+}
+
+/**
+ * Inverse transform a point (screen to world coordinates)
+ */
+export function inverseTransformPoint(
+  screenX: number,
+  screenY: number,
+  zoom: number,
+  panX: number,
+  panY: number
+): { x: number; y: number } {
+  return {
+    x: (screenX - panX) / zoom,
+    y: (screenY - panY) / zoom,
+  };
+}

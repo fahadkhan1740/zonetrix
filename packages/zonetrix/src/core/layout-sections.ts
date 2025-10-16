@@ -13,7 +13,7 @@ export function createSectionsLayout(config: SectionsLayoutConfig): Cell[] {
   const allCells: Cell[] = [];
 
   for (const block of blocks) {
-    // Create grid for this block
+    // Create grid for this block with auto-overlap prevention
     const blockCells = createGridLayout({
       type: 'grid',
       rows: block.rows,
@@ -23,6 +23,8 @@ export function createSectionsLayout(config: SectionsLayoutConfig): Cell[] {
       origin: block.origin,
       numbering: block.numbering,
       labelPrefix: block.labelPrefix,
+      autoPreventOverlap: block.autoPreventOverlap,
+      minSpacing: block.minSpacing,
     });
 
     // Add section ID to each cell

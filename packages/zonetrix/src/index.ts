@@ -15,6 +15,8 @@ export { ZonetrixLegend } from './components/ZonetrixLegend';
 export type { ZonetrixLegendProps } from './components/ZonetrixLegend';
 export { ZonetrixLayer } from './components/ZonetrixLayer';
 export type { ZonetrixLayerProps } from './components/ZonetrixLayer';
+export { ZonetrixZoomControls } from './components/ZonetrixZoomControls';
+export type { ZonetrixZoomControlsProps } from './components/ZonetrixZoomControls';
 
 // Export types
 export type {
@@ -55,6 +57,38 @@ export {
   normalizeAngle,
   distance,
   mirrorXForRTL,
+  clamp,
+  lerp,
+  pointInRect,
+  transformPoint,
+  inverseTransformPoint,
 } from './core/math';
 
 export { generateLabel, getAlphaLabel, generateAngularLabel } from './core/numbering';
+
+// Export collision detection utilities (advanced usage)
+export {
+  cellToRectangle,
+  rectanglesIntersect,
+  cellsOverlap,
+  detectOverlaps,
+  calculateMinimumGridGap,
+  calculateMinimumArcRadius,
+  adjustGridLayoutForOverlaps,
+  adjustArcLayoutForOverlaps,
+  isCellInBounds,
+  calculateOptimalScale,
+} from './core/collision-detection';
+export type {
+  Rectangle,
+  OverlapDetectionConfig,
+  OverlapResult,
+} from './core/collision-detection';
+
+// Export zoom/pan hook (advanced usage)
+export { useZoomPan } from './hooks/useZoomPan';
+export type {
+  ZoomPanState,
+  ZoomPanConfig,
+  UseZoomPanReturn,
+} from './hooks/useZoomPan';

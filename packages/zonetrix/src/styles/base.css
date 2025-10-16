@@ -260,3 +260,47 @@
 .zonetrix[dir="rtl"] {
   direction: rtl;
 }
+
+/* Zoom Controls */
+.zonetrix-zoom-controls {
+  @apply absolute top-4 right-4 z-10 flex flex-col gap-2 bg-white rounded-lg shadow-lg p-2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.zonetrix-zoom-controls-group {
+  @apply flex items-center gap-1;
+}
+
+.zonetrix-zoom-btn {
+  @apply flex items-center justify-center w-8 h-8 rounded transition-all duration-150;
+  @apply bg-white border border-gray-300 text-gray-700;
+  @apply hover:bg-gray-50 hover:border-gray-400 hover:shadow-md;
+  @apply active:bg-gray-100 active:scale-95;
+  @apply disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:shadow-none;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1;
+}
+
+.zonetrix-zoom-display {
+  @apply px-2 text-xs font-semibold text-gray-700 min-w-12 text-center;
+  @apply select-none;
+}
+
+/* Panning Cursor */
+.zonetrix-svg.is-panning {
+  cursor: grabbing !important;
+}
+
+.zonetrix-zoomable .zonetrix-svg {
+  touch-action: none;
+}
+
+/* Smooth zoom transitions */
+.zonetrix-svg {
+  transition: none;
+}
+
+/* Prevent text selection during pan */
+.zonetrix-zoomable {
+  -webkit-user-select: none;
+  user-select: none;
+}
