@@ -217,12 +217,18 @@ export interface SectionBlock {
 /**
  * Multi-section layout configuration
  */
-export interface SectionsLayoutConfig {
+export interface SectionsLayoutConfig extends LayoutObjectsConfig {
   type: 'sections';
   /** Array of section blocks */
   blocks: SectionBlock[];
-  /** Objects to render alongside the sections */
-  objects?: LayoutObject[];
+  /** Automatically prevent section-to-section overlaps (default: true) */
+  autoPreventSectionOverlaps?: boolean;
+  /** Minimum spacing between sections in pixels (default: 20) */
+  minSectionSpacing?: number;
+  /** Strategy for adjusting overlapping sections (default: 'compact') */
+  sectionLayoutStrategy?: 'compact' | 'distribute' | 'preserve-relative';
+  /** Preferred direction for 'distribute' strategy (default: 'horizontal') */
+  sectionLayoutDirection?: 'horizontal' | 'vertical';
 }
 
 /**

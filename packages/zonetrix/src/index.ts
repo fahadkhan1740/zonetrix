@@ -78,11 +78,18 @@ export {
   adjustArcLayoutForOverlaps,
   isCellInBounds,
   calculateOptimalScale,
+  // Section overlap detection and adjustment
+  calculateSectionBounds,
+  sectionsOverlap,
+  detectSectionOverlaps,
+  autoAdjustSectionPositions,
 } from './core/collision-detection';
 export type {
   Rectangle,
   OverlapDetectionConfig,
   OverlapResult,
+  SectionOverlapResult,
+  SectionAdjustmentConfig,
 } from './core/collision-detection';
 
 // Export zoom/pan hook (advanced usage)
