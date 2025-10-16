@@ -89,8 +89,8 @@
 
 /* Held state (similar to unavailable but slightly different) */
 .zonetrix-cell.is-held .zonetrix-cell-rect {
-  fill: #fef3c7;
-  stroke: #fbbf24;
+  fill: var(--ztx-seat-color-held);
+  stroke: var(--ztx-seat-border-held);
   stroke-width: 2;
   @apply cursor-not-allowed;
   filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.2));
@@ -103,8 +103,8 @@
 
 /* Sold state (similar to booked) */
 .zonetrix-cell.is-sold .zonetrix-cell-rect {
-  fill: #ffe4e6;
-  stroke: #f43f5e;
+  fill: var(--ztx-seat-color-sold);
+  stroke: var(--ztx-seat-border-sold);
   stroke-width: 2;
   @apply cursor-not-allowed;
   filter: drop-shadow(0 2px 4px rgba(244, 63, 94, 0.2));
@@ -155,12 +155,12 @@
 }
 
 .zonetrix-cell.is-held .zonetrix-cell-label {
-  fill: #92400e;
+  fill: var(--ztx-seat-text-held);
   @apply opacity-70;
 }
 
 .zonetrix-cell.is-sold .zonetrix-cell-label {
-  fill: #881337;
+  fill: var(--ztx-seat-text-sold);
   @apply opacity-70;
 }
 
@@ -245,14 +245,14 @@
 }
 
 .zonetrix-legend-color.held {
-  background-color: #fef3c7;
-  border-color: #fbbf24;
+  background-color: var(--ztx-seat-color-held);
+  border-color: var(--ztx-seat-border-held);
   opacity: 0.7;
 }
 
 .zonetrix-legend-color.sold {
-  background-color: #ffe4e6;
-  border-color: #f43f5e;
+  background-color: var(--ztx-seat-color-sold);
+  border-color: var(--ztx-seat-border-sold);
   opacity: 0.7;
 }
 

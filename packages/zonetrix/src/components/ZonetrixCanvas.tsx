@@ -470,6 +470,18 @@ export function ZonetrixCanvas({
     if (theme.seatTextBooked)
       root.style.setProperty('--ztx-seat-text-booked', theme.seatTextBooked);
 
+    // Held state colors
+    if (theme.seatColorHeld) root.style.setProperty('--ztx-seat-color-held', theme.seatColorHeld);
+    if (theme.seatBorderHeld)
+      root.style.setProperty('--ztx-seat-border-held', theme.seatBorderHeld);
+    if (theme.seatTextHeld) root.style.setProperty('--ztx-seat-text-held', theme.seatTextHeld);
+
+    // Sold state colors
+    if (theme.seatColorSold) root.style.setProperty('--ztx-seat-color-sold', theme.seatColorSold);
+    if (theme.seatBorderSold)
+      root.style.setProperty('--ztx-seat-border-sold', theme.seatBorderSold);
+    if (theme.seatTextSold) root.style.setProperty('--ztx-seat-text-sold', theme.seatTextSold);
+
     // Legacy support
     if (theme.seatColor) root.style.setProperty('--ztx-seat-color', theme.seatColor);
     if (theme.seatBorder) root.style.setProperty('--ztx-seat-border', theme.seatBorder);

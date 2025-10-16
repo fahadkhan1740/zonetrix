@@ -32,6 +32,16 @@
   --ztx-seat-border-booked: #fca5a5;
   --ztx-seat-text-booked: #991b1b;
 
+  /* Held seats - Yellow/amber tint */
+  --ztx-seat-color-held: #fef3c7;
+  --ztx-seat-border-held: #fbbf24;
+  --ztx-seat-text-held: #92400e;
+
+  /* Sold seats - Pink/red tint */
+  --ztx-seat-color-sold: #ffe4e6;
+  --ztx-seat-border-sold: #f43f5e;
+  --ztx-seat-text-sold: #881337;
+
   /* Legacy support (for backward compatibility) */
   --ztx-seat-color: var(--ztx-seat-color-empty);
   --ztx-seat-border: var(--ztx-seat-border-empty);

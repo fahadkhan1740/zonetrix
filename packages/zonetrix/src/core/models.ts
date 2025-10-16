@@ -255,6 +255,10 @@ export interface RenderTheme {
   seatColorUnavailable?: string;
   /** Booked seat color */
   seatColorBooked?: string;
+  /** Held seat color */
+  seatColorHeld?: string;
+  /** Sold seat color */
+  seatColorSold?: string;
 
   /* Seat border colors for different states */
   /** Empty/available seat border */
@@ -267,6 +271,10 @@ export interface RenderTheme {
   seatBorderUnavailable?: string;
   /** Booked seat border */
   seatBorderBooked?: string;
+  /** Held seat border */
+  seatBorderHeld?: string;
+  /** Sold seat border */
+  seatBorderSold?: string;
 
   /* Seat text colors for different states */
   /** Empty/available seat text */
@@ -279,6 +287,10 @@ export interface RenderTheme {
   seatTextUnavailable?: string;
   /** Booked seat text */
   seatTextBooked?: string;
+  /** Held seat text */
+  seatTextHeld?: string;
+  /** Sold seat text */
+  seatTextSold?: string;
 
   /* Legacy color support (deprecated, use specific state colors instead) */
   /** @deprecated Use seatColorEmpty instead */

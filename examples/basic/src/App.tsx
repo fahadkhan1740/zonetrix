@@ -69,6 +69,35 @@ function App() {
     },
   ]);
 
+  // Seat color customization
+  const [seatColorEmpty, setSeatColorEmpty] = useState('#e0f2fe');
+  const [seatBorderEmpty, setSeatBorderEmpty] = useState('#7dd3fc');
+  const [seatTextEmpty, setSeatTextEmpty] = useState('#0c4a6e');
+
+  const [seatColorHover, setSeatColorHover] = useState('#bae6fd');
+  const [seatBorderHover, setSeatBorderHover] = useState('#0ea5e9');
+  const [seatTextHover, setSeatTextHover] = useState('#075985');
+
+  const [seatColorSelected, setSeatColorSelected] = useState('#22c55e');
+  const [seatBorderSelected, setSeatBorderSelected] = useState('#15803d');
+  const [seatTextSelected, setSeatTextSelected] = useState('#ffffff');
+
+  const [seatColorUnavailable, setSeatColorUnavailable] = useState('#f1f5f9');
+  const [seatBorderUnavailable, setSeatBorderUnavailable] = useState('#cbd5e1');
+  const [seatTextUnavailable, setSeatTextUnavailable] = useState('#94a3b8');
+
+  const [seatColorBooked, setSeatColorBooked] = useState('#fee2e2');
+  const [seatBorderBooked, setSeatBorderBooked] = useState('#fca5a5');
+  const [seatTextBooked, setSeatTextBooked] = useState('#991b1b');
+
+  const [seatColorHeld, setSeatColorHeld] = useState('#fef3c7');
+  const [seatBorderHeld, setSeatBorderHeld] = useState('#fbbf24');
+  const [seatTextHeld, setSeatTextHeld] = useState('#92400e');
+
+  const [seatColorSold, setSeatColorSold] = useState('#ffe4e6');
+  const [seatBorderSold, setSeatBorderSold] = useState('#f43f5e');
+  const [seatTextSold, setSeatTextSold] = useState('#881337');
+
   // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -78,7 +107,28 @@ function App() {
         if (config.layoutType) setLayoutType(config.layoutType);
         if (config.gridRows) setGridRows(config.gridRows);
         if (config.gridCols) setGridCols(config.gridCols);
-        // ... load other values
+        // Load seat colors
+        if (config.seatColorEmpty) setSeatColorEmpty(config.seatColorEmpty);
+        if (config.seatBorderEmpty) setSeatBorderEmpty(config.seatBorderEmpty);
+        if (config.seatTextEmpty) setSeatTextEmpty(config.seatTextEmpty);
+        if (config.seatColorHover) setSeatColorHover(config.seatColorHover);
+        if (config.seatBorderHover) setSeatBorderHover(config.seatBorderHover);
+        if (config.seatTextHover) setSeatTextHover(config.seatTextHover);
+        if (config.seatColorSelected) setSeatColorSelected(config.seatColorSelected);
+        if (config.seatBorderSelected) setSeatBorderSelected(config.seatBorderSelected);
+        if (config.seatTextSelected) setSeatTextSelected(config.seatTextSelected);
+        if (config.seatColorUnavailable) setSeatColorUnavailable(config.seatColorUnavailable);
+        if (config.seatBorderUnavailable) setSeatBorderUnavailable(config.seatBorderUnavailable);
+        if (config.seatTextUnavailable) setSeatTextUnavailable(config.seatTextUnavailable);
+        if (config.seatColorBooked) setSeatColorBooked(config.seatColorBooked);
+        if (config.seatBorderBooked) setSeatBorderBooked(config.seatBorderBooked);
+        if (config.seatTextBooked) setSeatTextBooked(config.seatTextBooked);
+        if (config.seatColorHeld) setSeatColorHeld(config.seatColorHeld);
+        if (config.seatBorderHeld) setSeatBorderHeld(config.seatBorderHeld);
+        if (config.seatTextHeld) setSeatTextHeld(config.seatTextHeld);
+        if (config.seatColorSold) setSeatColorSold(config.seatColorSold);
+        if (config.seatBorderSold) setSeatBorderSold(config.seatBorderSold);
+        if (config.seatTextSold) setSeatTextSold(config.seatTextSold);
       } catch (e) {
         console.error('Failed to load saved config:', e);
       }
@@ -102,6 +152,28 @@ function App() {
       circleRadius,
       circleCount,
       circleCellSize,
+      // Seat colors
+      seatColorEmpty,
+      seatBorderEmpty,
+      seatTextEmpty,
+      seatColorHover,
+      seatBorderHover,
+      seatTextHover,
+      seatColorSelected,
+      seatBorderSelected,
+      seatTextSelected,
+      seatColorUnavailable,
+      seatBorderUnavailable,
+      seatTextUnavailable,
+      seatColorBooked,
+      seatBorderBooked,
+      seatTextBooked,
+      seatColorHeld,
+      seatBorderHeld,
+      seatTextHeld,
+      seatColorSold,
+      seatBorderSold,
+      seatTextSold,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
   }, [
@@ -119,6 +191,28 @@ function App() {
     circleRadius,
     circleCount,
     circleCellSize,
+    // Seat colors
+    seatColorEmpty,
+    seatBorderEmpty,
+    seatTextEmpty,
+    seatColorHover,
+    seatBorderHover,
+    seatTextHover,
+    seatColorSelected,
+    seatBorderSelected,
+    seatTextSelected,
+    seatColorUnavailable,
+    seatBorderUnavailable,
+    seatTextUnavailable,
+    seatColorBooked,
+    seatBorderBooked,
+    seatTextBooked,
+    seatColorHeld,
+    seatBorderHeld,
+    seatTextHeld,
+    seatColorSold,
+    seatBorderSold,
+    seatTextSold,
   ]);
 
   const axisConfig = useMemo<AxisLabelsConfig>(
@@ -750,6 +844,241 @@ function App() {
 
         <div className="divider" />
 
+        <h3 className="text-sm font-semibold mb-3">Seat Colors</h3>
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-medium text-sm mb-2">Empty Seats</summary>
+          <div className="ml-4 space-y-2">
+            <div className="form-group">
+              <label>Fill Color</label>
+              <input
+                type="color"
+                value={seatColorEmpty}
+                onChange={(e) => setSeatColorEmpty(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Border Color</label>
+              <input
+                type="color"
+                value={seatBorderEmpty}
+                onChange={(e) => setSeatBorderEmpty(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={seatTextEmpty}
+                onChange={(e) => setSeatTextEmpty(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+          </div>
+        </details>
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-medium text-sm mb-2">Hover State</summary>
+          <div className="ml-4 space-y-2">
+            <div className="form-group">
+              <label>Fill Color</label>
+              <input
+                type="color"
+                value={seatColorHover}
+                onChange={(e) => setSeatColorHover(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Border Color</label>
+              <input
+                type="color"
+                value={seatBorderHover}
+                onChange={(e) => setSeatBorderHover(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={seatTextHover}
+                onChange={(e) => setSeatTextHover(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+          </div>
+        </details>
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-medium text-sm mb-2">Selected Seats</summary>
+          <div className="ml-4 space-y-2">
+            <div className="form-group">
+              <label>Fill Color</label>
+              <input
+                type="color"
+                value={seatColorSelected}
+                onChange={(e) => setSeatColorSelected(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Border Color</label>
+              <input
+                type="color"
+                value={seatBorderSelected}
+                onChange={(e) => setSeatBorderSelected(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={seatTextSelected}
+                onChange={(e) => setSeatTextSelected(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+          </div>
+        </details>
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-medium text-sm mb-2">Unavailable Seats</summary>
+          <div className="ml-4 space-y-2">
+            <div className="form-group">
+              <label>Fill Color</label>
+              <input
+                type="color"
+                value={seatColorUnavailable}
+                onChange={(e) => setSeatColorUnavailable(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Border Color</label>
+              <input
+                type="color"
+                value={seatBorderUnavailable}
+                onChange={(e) => setSeatBorderUnavailable(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={seatTextUnavailable}
+                onChange={(e) => setSeatTextUnavailable(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+          </div>
+        </details>
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-medium text-sm mb-2">Booked Seats</summary>
+          <div className="ml-4 space-y-2">
+            <div className="form-group">
+              <label>Fill Color</label>
+              <input
+                type="color"
+                value={seatColorBooked}
+                onChange={(e) => setSeatColorBooked(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Border Color</label>
+              <input
+                type="color"
+                value={seatBorderBooked}
+                onChange={(e) => setSeatBorderBooked(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={seatTextBooked}
+                onChange={(e) => setSeatTextBooked(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+          </div>
+        </details>
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-medium text-sm mb-2">Held Seats</summary>
+          <div className="ml-4 space-y-2">
+            <div className="form-group">
+              <label>Fill Color</label>
+              <input
+                type="color"
+                value={seatColorHeld}
+                onChange={(e) => setSeatColorHeld(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Border Color</label>
+              <input
+                type="color"
+                value={seatBorderHeld}
+                onChange={(e) => setSeatBorderHeld(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={seatTextHeld}
+                onChange={(e) => setSeatTextHeld(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+          </div>
+        </details>
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-medium text-sm mb-2">Sold Seats</summary>
+          <div className="ml-4 space-y-2">
+            <div className="form-group">
+              <label>Fill Color</label>
+              <input
+                type="color"
+                value={seatColorSold}
+                onChange={(e) => setSeatColorSold(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Border Color</label>
+              <input
+                type="color"
+                value={seatBorderSold}
+                onChange={(e) => setSeatBorderSold(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+            <div className="form-group">
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={seatTextSold}
+                onChange={(e) => setSeatTextSold(e.target.value)}
+                className="w-full h-10"
+              />
+            </div>
+          </div>
+        </details>
+
+        <div className="divider" />
+
         <button className="button button-secondary" onClick={() => setSelected([])}>
           Clear Selection
         </button>
@@ -797,22 +1126,22 @@ function App() {
               showSeatLabels={showSeatLabels}
               axisLabels={axisConfig}
               theme={{
-                // New state-based colors
-                seatColorEmpty: '#e0f2fe',
-                seatColorHover: '#bae6fd',
-                seatColorSelected: '#22c55e',
-                seatColorUnavailable: '#f1f5f9',
-                seatColorBooked: '#fee2e2',
-                seatBorderEmpty: '#7dd3fc',
-                seatBorderHover: '#0ea5e9',
-                seatBorderSelected: '#15803d',
-                seatBorderUnavailable: '#cbd5e1',
-                seatBorderBooked: '#fca5a5',
-                seatTextEmpty: '#0c4a6e',
-                seatTextHover: '#075985',
-                seatTextSelected: '#ffffff',
-                seatTextUnavailable: '#94a3b8',
-                seatTextBooked: '#991b1b',
+                // Seat colors from state
+                seatColorEmpty,
+                seatBorderEmpty,
+                seatTextEmpty,
+                seatColorHover,
+                seatBorderHover,
+                seatTextHover,
+                seatColorSelected,
+                seatBorderSelected,
+                seatTextSelected,
+                seatColorUnavailable,
+                seatBorderUnavailable,
+                seatTextUnavailable,
+                seatColorBooked,
+                seatBorderBooked,
+                seatTextBooked,
                 axisLabelColor: axisColor,
                 objectFillColor,
                 objectBorderColor,
