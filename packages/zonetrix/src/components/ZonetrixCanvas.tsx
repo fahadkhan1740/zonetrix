@@ -14,10 +14,13 @@ import type {
   LayoutConfig,
   LayoutObject,
   RenderTheme,
+  TooltipConfig,
 } from '../core/models';
+import { useTooltip } from '../hooks/useTooltip';
 import { useZoomPan } from '../hooks/useZoomPan';
 import { ZonetrixCell } from './ZonetrixCell';
 import { ZonetrixLayer } from './ZonetrixLayer';
+import { ZonetrixTooltip } from './ZonetrixTooltip';
 import { ZonetrixZoomControls } from './ZonetrixZoomControls';
 
 export interface ZonetrixProps {
@@ -41,6 +44,8 @@ export interface ZonetrixProps {
   showSeatLabels?: boolean;
   /** Axis label configuration */
   axisLabels?: AxisLabelsConfig;
+  /** Tooltip configuration */
+  tooltip?: TooltipConfig;
   /** Render theme */
   theme?: RenderTheme;
   /** Text direction */
@@ -89,6 +94,7 @@ export function ZonetrixCanvas({
   selectablePredicate,
   showSeatLabels = true,
   axisLabels,
+  tooltip,
   theme,
   dir = 'ltr',
   className = '',
@@ -116,6 +122,15 @@ export function ZonetrixCanvas({
     maxZoom,
     zoomSpeed,
     initialZoom: 1,
+  });
+
+  // Initialize tooltip functionality
+  const tooltipEnabled = tooltip?.enabled ?? true;
+  const tooltipHook = useTooltip({
+    offset: tooltip?.offset || { x: 12, y: 12 },
+    enableTouch: tooltip?.enableTouch ?? true,
+    showDelay: tooltip?.showDelay ?? 0,
+    hideDelay: tooltip?.hideDelay ?? 0,
   });
 
   // Generate cells from layout configuration (memoized)
@@ -380,13 +395,16 @@ export function ZonetrixCanvas({
 
   // Handle cell hover
   const handleCellMouseEnter = useCallback(
-    (cell: Cell) => {
+    (cell: Cell, e: React.MouseEvent) => {
       setHoveredCell(cell);
       if (onCellHover) {
         onCellHover(cell);
       }
+      if (tooltipEnabled) {
+        tooltipHook.handleMouseEnter(cell, e);
+      }
     },
-    [onCellHover]
+    [onCellHover, tooltipEnabled, tooltipHook]
   );
 
   const handleCellMouseLeave = useCallback(() => {
@@ -394,7 +412,10 @@ export function ZonetrixCanvas({
     if (onCellHover) {
       onCellHover(null);
     }
-  }, [onCellHover]);
+    if (tooltipEnabled) {
+      tooltipHook.handleMouseLeave();
+    }
+  }, [onCellHover, tooltipEnabled, tooltipHook]);
 
   // Handle cell focus
   const handleCellFocus = useCallback((cell: Cell) => {
@@ -407,6 +428,30 @@ export function ZonetrixCanvas({
   const handleCellBlur = useCallback(() => {
     setFocusedCellLabel(null);
   }, []);
+
+  // Handle cell touch (for mobile tooltip)
+  const handleCellTouchStart = useCallback(
+    (cell: Cell, e: React.TouchEvent) => {
+      if (tooltipEnabled) {
+        tooltipHook.handleTouchStart(cell, e);
+      }
+    },
+    [tooltipEnabled, tooltipHook]
+  );
+
+  // Handle wrapper click to hide tooltip on touch devices
+  const handleWrapperClick = useCallback(
+    (e: React.MouseEvent) => {
+      // Only hide tooltip if clicking the wrapper itself (not a cell)
+      if (tooltipEnabled && tooltipHook.tooltipState.isTouchMode) {
+        const target = e.target as HTMLElement;
+        if (target === wrapperRef.current || target.tagName === 'svg') {
+          tooltipHook.hideTooltip();
+        }
+      }
+    },
+    [tooltipEnabled, tooltipHook]
+  );
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
@@ -501,10 +546,16 @@ export function ZonetrixCanvas({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
+      // Update tooltip position if tooltip is visible
+      if (tooltipEnabled) {
+        tooltipHook.handleMouseMove(e);
+      }
+
+      // Handle pan if enabled
       if (!enablePanZoom) return;
       zoomPan.updatePan(e.clientX, e.clientY);
     },
-    [enablePanZoom, zoomPan]
+    [enablePanZoom, zoomPan, tooltipEnabled, tooltipHook]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -626,6 +677,7 @@ export function ZonetrixCanvas({
       className={`zonetrix ${enablePanZoom ? 'zonetrix-zoomable' : ''} ${className}`.trim()}
       dir={dir}
       style={{ ...style, position: 'relative' }}
+      onClick={handleWrapperClick}
       onKeyDown={(e) => {
         handleKeyDown(e);
         handleZoomKeyDown(e);
@@ -712,6 +764,7 @@ export function ZonetrixCanvas({
                 onClick={handleCellClick}
                 onMouseEnter={handleCellMouseEnter}
                 onMouseLeave={handleCellMouseLeave}
+                onTouchStart={handleCellTouchStart}
                 onFocus={handleCellFocus}
                 onBlur={handleCellBlur}
                 tabIndex={tabIndex}
@@ -752,6 +805,16 @@ export function ZonetrixCanvas({
           </ZonetrixLayer>
         )}
       </svg>
+
+      {tooltipEnabled && (
+        <ZonetrixTooltip
+          cell={tooltipHook.tooltipState.cell}
+          position={tooltipHook.tooltipState.position}
+          visible={tooltipHook.tooltipState.visible}
+          isTouchMode={tooltipHook.tooltipState.isTouchMode}
+          renderContent={tooltip?.renderContent}
+        />
+      )}
     </div>
   );
 }

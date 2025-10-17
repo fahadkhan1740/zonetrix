@@ -12,10 +12,11 @@ export interface ZonetrixCellProps {
   theme?: RenderTheme;
   showLabel?: boolean;
   onClick?: (cell: Cell) => void;
-  onMouseEnter?: (cell: Cell) => void;
+  onMouseEnter?: (cell: Cell, e: React.MouseEvent) => void;
   onMouseLeave?: (cell: Cell) => void;
   onFocus?: (cell: Cell) => void;
   onBlur?: () => void;
+  onTouchStart?: (cell: Cell, e: React.TouchEvent) => void;
   tabIndex?: number;
 }
 
@@ -31,6 +32,7 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
     onMouseLeave,
     onFocus,
     onBlur,
+    onTouchStart,
     tabIndex = -1,
   }) => {
     const { x, y, w, h, meta } = cell;
@@ -58,15 +60,21 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
       }
     };
 
-    const handleMouseEnter = () => {
+    const handleMouseEnter = (e: React.MouseEvent) => {
       if (onMouseEnter) {
-        onMouseEnter(cell);
+        onMouseEnter(cell, e);
       }
     };
 
     const handleMouseLeave = () => {
       if (onMouseLeave) {
         onMouseLeave(cell);
+      }
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+      if (onTouchStart) {
+        onTouchStart(cell, e);
       }
     };
 
@@ -93,6 +101,7 @@ export const ZonetrixCell = memo<ZonetrixCellProps>(
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
         onFocus={handleFocus}
         onBlur={onBlur}
         onKeyDown={handleKeyDown}

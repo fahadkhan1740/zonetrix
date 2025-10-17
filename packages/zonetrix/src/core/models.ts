@@ -260,6 +260,24 @@ export interface AxisLabelsConfig {
 }
 
 /**
+ * Tooltip configuration
+ */
+export interface TooltipConfig {
+  /** Enable tooltip on hover/touch */
+  enabled?: boolean;
+  /** Enable touch mode detection for mobile devices */
+  enableTouch?: boolean;
+  /** Offset from cursor/touch point (px) */
+  offset?: { x: number; y: number };
+  /** Delay before showing tooltip (ms) */
+  showDelay?: number;
+  /** Delay before hiding tooltip (ms) */
+  hideDelay?: number;
+  /** Custom render function for tooltip content */
+  renderContent?: (cell: Cell) => React.ReactNode;
+}
+
+/**
  * Theme configuration for rendering
  */
 export interface RenderTheme {

@@ -5,6 +5,7 @@
 
 // Import styles
 import './styles/base.css';
+import './styles/tooltip.css';
 
 // Export components
 export { ZonetrixCanvas } from './components/ZonetrixCanvas';
@@ -17,6 +18,8 @@ export { ZonetrixLayer } from './components/ZonetrixLayer';
 export type { ZonetrixLayerProps } from './components/ZonetrixLayer';
 export { ZonetrixZoomControls } from './components/ZonetrixZoomControls';
 export type { ZonetrixZoomControlsProps } from './components/ZonetrixZoomControls';
+export { ZonetrixTooltip } from './components/ZonetrixTooltip';
+export type { ZonetrixTooltipProps, TooltipPosition } from './components/ZonetrixTooltip';
 
 // Export types
 export type {
@@ -36,6 +39,7 @@ export type {
   LayoutObjectType,
   LayoutObjectsConfig,
   AxisLabelsConfig,
+  TooltipConfig,
   RenderTheme,
 } from './core/models';
 
@@ -99,3 +103,11 @@ export type {
   ZoomPanConfig,
   UseZoomPanReturn,
 } from './hooks/useZoomPan';
+
+// Export tooltip hook (advanced usage)
+export { useTooltip } from './hooks/useTooltip';
+export type {
+  TooltipState,
+  UseTooltipOptions,
+  UseTooltipReturn,
+} from './hooks/useTooltip';

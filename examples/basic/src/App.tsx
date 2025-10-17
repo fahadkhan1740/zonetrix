@@ -33,6 +33,8 @@ function App() {
   const [showObject, setShowObject] = useState(true);
   const [objectType, setObjectType] = useState<'stage' | 'screen' | 'custom'>('stage');
   const [objectLabel, setObjectLabel] = useState('Stage');
+  const [enableTooltip, setEnableTooltip] = useState(true);
+  const [showPricing, setShowPricing] = useState(true);
 
   // Grid config
   const [gridRows, setGridRows] = useState(10);
@@ -475,6 +477,37 @@ function App() {
   const objectBorderColor = '#020617';
   const objectTextColor = '#f8fafc';
 
+  // Custom cell label function that adds pricing based on row position
+  const getCellLabel = (cell: Cell) => {
+    // Calculate price based on row (closer to stage = more expensive)
+    let basePrice = 50;
+
+    if (layoutType === 'grid' && cell.id.row !== undefined) {
+      // For grid: front rows are more expensive
+      const rowDistance = cell.id.row;
+      basePrice = 100 - (rowDistance * 5);
+      basePrice = Math.max(25, Math.min(100, basePrice));
+    } else if (layoutType === 'arc' || layoutType === 'circle') {
+      // For arc/circle: randomize a bit for variety
+      basePrice = 50 + Math.floor(Math.random() * 50);
+    } else if (layoutType === 'sections' && cell.id.sectionId) {
+      // For sections: different pricing per section
+      const sectionIndex = sectionBlocks.findIndex(b => b.id === cell.id.sectionId);
+      basePrice = 75 - (sectionIndex * 15);
+      basePrice = Math.max(30, basePrice);
+    }
+
+    // Store pricing in cell metadata for tooltip
+    if (showPricing && cell.meta) {
+      cell.meta.price = basePrice;
+      cell.meta.data = {
+        category: basePrice >= 75 ? 'Premium' : basePrice >= 50 ? 'Standard' : 'Economy',
+      };
+    }
+
+    return cell.meta?.label || '';
+  };
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -816,6 +849,26 @@ function App() {
             Show stage/screen
           </label>
 
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={enableTooltip}
+              onChange={(e) => setEnableTooltip(e.target.checked)}
+            />
+            Enable hover tooltips
+          </label>
+
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={showPricing}
+              onChange={(e) => setShowPricing(e.target.checked)}
+            />
+            Show pricing in tooltips
+          </label>
+
           {showObject && (
             <>
               <div className="form-group">
@@ -1122,9 +1175,16 @@ function App() {
               value={selected}
               onSelectionChange={setSelected}
               onCellClick={(cell: Cell) => console.log('Cell clicked:', cell)}
+              getCellLabel={getCellLabel}
               dir={rtl ? 'rtl' : 'ltr'}
               showSeatLabels={showSeatLabels}
               axisLabels={axisConfig}
+              tooltip={{
+                enabled: enableTooltip,
+                enableTouch: true,
+                showDelay: 0,
+                hideDelay: 0,
+              }}
               theme={{
                 // Seat colors from state
                 seatColorEmpty,

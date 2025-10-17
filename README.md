@@ -9,8 +9,11 @@ A highly-flexible React + TypeScript library for rendering venue layouts (seats,
 ## 🎯 Features
 
 - 🎭 **Multiple Layout Types**: Grid, Arc, Circle/Ring, and Multi-section layouts
+- 💡 **Interactive Tooltips**: Smart hover cards showing seat info, pricing, and metadata (NEW in v0.3.0!)
+- 📱 **Mobile-First**: Full touch support with tap-to-show tooltips for mobile devices
 - ⚡ **Performant**: Handles thousands of cells with smooth interaction
-- 🎨 **Themeable**: CSS variables and custom theme support
+- 🔍 **Zoom & Pan**: Built-in controls for navigating large venue layouts
+- 🎨 **Themeable**: CSS variables and custom theme support with dark mode
 - ♿ **Accessible**: Full keyboard navigation, ARIA labels, and focus management
 - 🌍 **RTL Support**: Works seamlessly in both LTR and RTL directions
 - 🔧 **Flexible**: Controlled and uncontrolled selection patterns
@@ -73,7 +76,9 @@ npm run dev
 # Visit http://localhost:3000
 ```
 
-## 📚 Usage Example
+## 📚 Usage Examples
+
+### Basic Grid Layout
 
 ```tsx
 import { useState } from 'react';
@@ -99,6 +104,59 @@ function App() {
       value={selected}
       onSelectionChange={setSelected}
       onCellClick={(cell) => console.log('Clicked:', cell.meta?.label)}
+    />
+  );
+}
+```
+
+### With Interactive Tooltips & Pricing (NEW!)
+
+```tsx
+import { useState } from 'react';
+import { ZonetrixCanvas, type Cell, type LayoutConfig } from 'zonetrix';
+import 'zonetrix/dist/index.css';
+
+function VenueWithTooltips() {
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const layout: LayoutConfig = {
+    type: 'grid',
+    rows: 10,
+    cols: 12,
+    cellSize: 22,
+    gap: 6,
+    numbering: { scheme: 'alpha-rows' },
+  };
+
+  // Add pricing based on row position
+  const getCellLabel = (cell: Cell) => {
+    if (cell.meta && cell.id.row !== undefined) {
+      // Front rows are more expensive
+      const price = 100 - (cell.id.row * 5);
+      cell.meta.price = Math.max(25, Math.min(100, price));
+      cell.meta.data = {
+        category: price >= 75 ? 'Premium' : price >= 50 ? 'Standard' : 'Economy',
+      };
+    }
+    return cell.meta?.label || '';
+  };
+
+  return (
+    <ZonetrixCanvas
+      layout={layout}
+      value={selected}
+      onSelectionChange={setSelected}
+      getCellLabel={getCellLabel}
+      tooltip={{
+        enabled: true,
+        enableTouch: true,  // Works on mobile!
+        showDelay: 0,
+      }}
+      enablePanZoom={true}  // Enable zoom controls
+      theme={{
+        seatColorSelected: '#22c55e',
+        seatBorderSelected: '#15803d',
+      }}
     />
   );
 }
@@ -235,14 +293,25 @@ The demo provides:
 - **CSS Modules** - Styling
 - **Biome** - Fast linting & formatting
 
-## 📝 Future Enhancements (v2)
+## 🆕 What's New in v0.3.0
+
+### Interactive Tooltips
+- **Mouse-following tooltips** on desktop that display seat information
+- **Tap-to-show tooltips** on mobile devices with smart positioning
+- **Rich content** including section, seat number, price, status, and custom metadata
+- **Smart viewport detection** to prevent tooltips from going off-screen
+- **Fully customizable** with render functions and CSS variables
+- **Dark mode support** built-in
+
+See [docs/tooltip-feature.md](docs/tooltip-feature.md) for complete documentation.
+
+## 📝 Future Enhancements
 
 - Booth rendering with custom shapes (rectangles, polygons)
-- Pan & zoom functionality
-- Multi-row pricing
-- Section labels and stage markers
+- Multi-row pricing tiers
 - Export to SVG/PNG
 - Storybook documentation
+- 3D venue visualization
 
 ## 📄 License
 

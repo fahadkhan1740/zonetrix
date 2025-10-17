@@ -1,0 +1,181 @@
+/**
+ * Zonetrix Tooltip Styles
+ */
+
+.zonetrix-tooltip {
+  background: var(--ztx-tooltip-bg, #ffffff);
+  border: 1px solid var(--ztx-tooltip-border, #e2e8f0);
+  border-radius: var(--ztx-tooltip-radius, 8px);
+  box-shadow: var(--ztx-tooltip-shadow, 0 4px 12px rgba(0, 0, 0, 0.15));
+  padding: var(--ztx-tooltip-padding, 12px);
+  min-width: var(--ztx-tooltip-min-width, 180px);
+  max-width: var(--ztx-tooltip-max-width, 280px);
+  font-family: var(--ztx-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-size: var(--ztx-tooltip-font-size, 14px);
+  color: var(--ztx-tooltip-text, #1e293b);
+  opacity: 0;
+  transform: scale(0.95);
+  animation: zonetrix-tooltip-enter 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes zonetrix-tooltip-enter {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Touch mode adjustments */
+.zonetrix-tooltip.is-touch {
+  /* Slightly larger padding and font for touch devices */
+  padding: 14px;
+  font-size: 15px;
+  min-width: 200px;
+}
+
+/* Content structure */
+.zonetrix-tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.zonetrix-tooltip-section,
+.zonetrix-tooltip-seat,
+.zonetrix-tooltip-price,
+.zonetrix-tooltip-custom-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.zonetrix-tooltip-label {
+  color: var(--ztx-tooltip-label-color, #64748b);
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.zonetrix-tooltip-value {
+  color: var(--ztx-tooltip-value-color, #1e293b);
+  font-weight: 600;
+}
+
+/* Seat number emphasis */
+.zonetrix-tooltip-seat-number {
+  font-size: 1.1em;
+  color: var(--ztx-seat-color-selected, #22c55e);
+}
+
+/* Price emphasis */
+.zonetrix-tooltip-price-amount {
+  font-size: 1.1em;
+  color: var(--ztx-tooltip-price-color, #059669);
+}
+
+/* Status badge */
+.zonetrix-tooltip-status {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.zonetrix-tooltip-status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.zonetrix-tooltip-status-available {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.zonetrix-tooltip-status-unavailable {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.zonetrix-tooltip-status-booked {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.zonetrix-tooltip-status-held {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.zonetrix-tooltip-status-sold {
+  background-color: #ffe4e6;
+  color: #881337;
+}
+
+/* Custom data section */
+.zonetrix-tooltip-custom {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ztx-tooltip-divider, #e2e8f0);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .zonetrix-tooltip {
+    --ztx-tooltip-bg: #1e293b;
+    --ztx-tooltip-border: #334155;
+    --ztx-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --ztx-tooltip-text: #f1f5f9;
+    --ztx-tooltip-label-color: #94a3b8;
+    --ztx-tooltip-value-color: #f1f5f9;
+    --ztx-tooltip-divider: #334155;
+  }
+
+  .zonetrix-tooltip-seat-number {
+    color: #4ade80;
+  }
+
+  .zonetrix-tooltip-price-amount {
+    color: #34d399;
+  }
+
+  .zonetrix-tooltip-status-available {
+    background-color: #064e3b;
+    color: #a7f3d0;
+  }
+
+  .zonetrix-tooltip-status-unavailable {
+    background-color: #334155;
+    color: #cbd5e1;
+  }
+
+  .zonetrix-tooltip-status-booked {
+    background-color: #7f1d1d;
+    color: #fecaca;
+  }
+
+  .zonetrix-tooltip-status-held {
+    background-color: #78350f;
+    color: #fde68a;
+  }
+
+  .zonetrix-tooltip-status-sold {
+    background-color: #831843;
+    color: #fbcfe8;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .zonetrix-tooltip {
+    font-size: 13px;
+    max-width: 240px;
+  }
+}
